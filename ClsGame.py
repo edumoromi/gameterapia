@@ -2,11 +2,14 @@ import pygame
 from ClsMenu import *
 import sys
 class Game():
+
+    #Tamanho da tela do jogo.
+    DISPLAY_W, DISPLAY_H = 800, 600
+
     def __init__(self):
         pygame.init()
         self.running, self.playing = True, False
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
-        self.DISPLAY_W, self.DISPLAY_H = 800, 600
         self.size = width, height = self.DISPLAY_W, self.DISPLAY_H
         self.display = pygame.Surface((self.DISPLAY_W,self.DISPLAY_H))
         self.window = pygame.display.set_mode(((self.DISPLAY_W,self.DISPLAY_H)))
@@ -59,7 +62,7 @@ class Game():
     def in_game_loop(self):
         from ClsHand import Hand
         from ClsPizza import Pizza
-        Pizza = Pizza([100, 100])
+        Pizza = Pizza([(self.DISPLAY_W * 3/4), (self.DISPLAY_W * 1/4)])
         Hand = Hand([self.DISPLAY_H/10,self.DISPLAY_W/1.5])
         pygame.display.set_caption('Hand!')
         clock = pygame.time.Clock()
@@ -84,13 +87,8 @@ class Game():
                         Hand.move("LEFT","UP",self.size)
                     if event.key == pygame.K_RIGHT:
                         Hand.move("RIGHT","UP",self.size)
-            # checa se a bola colidiu no Hand, e caso sim inverte a direcao vertical da bola
-            if Hand.rect.colliderect(Pizza.rect):
-                if Pizza.speed[1] > 0:
-                    Pizza.speed[1] = -Pizza.speed[1]
 
             # atualiza os objetos
-            Pizza.update(self.size)
             Hand.update()
 
             # redesenha a tela
