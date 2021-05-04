@@ -4,6 +4,8 @@ from ClsGame import Game
 from ClsPizza import Pizza
 
 class Hand(pygame.sprite.Sprite):
+    velocidade_x = 0 #criar funaco get e set
+    velocidade_y = 0 #criar funaco get e set
     def __init__(self, startpos):
         pygame.sprite.Sprite.__init__(self)
         #direcao: 1=direita, -1=esquerda
@@ -45,7 +47,7 @@ class Hand(pygame.sprite.Sprite):
         #        self.frame = 0
         #    self.image = self.images[self.frame//ani]
 
-    def move(self,dir,key,screen):
+    def move(self,dir,key,screen): #AJUSTAR FUNCAO
         if key == "DOWN":
             if dir == "RIGHT":
                 if self.rect.x <= -2:
@@ -61,15 +63,25 @@ class Hand(pygame.sprite.Sprite):
             else:
                self.control(2,0)
 
-    def pega_ingrediente(self):
+    def pega_ingrediente(self,ingrediente): #AJUSTAR FUNCAO
         x = self.rect.x
         y = self.rect.y
         self.image, self.rect = Image.load_image("MaoFechada.png")
         self.image = pygame.transform.scale(self.image, (100, 100))
         self.rect.x = x
         self.rect.y = y
-        self.control(0,-1)
-
+        if ingrediente == "molho":
+            self.control(0,-2)
+            self.velocidade_x = 0
+            self.velocidade_y = -2
+        elif ingrediente == "massa":
+            self.control(2,-2)
+            self.velocidade_x = 2
+            self.velocidade_y = -2
+        elif ingrediente == "cogumelo":
+            self.control(-1,-3)
+            self.velocidade_x = -1
+            self.velocidade_y = -3
     def solta_ingrediente(self):
         x = self.rect.x
         y = self.rect.y
@@ -77,4 +89,5 @@ class Hand(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (100, 100))
         self.rect.x = 360
         self.rect.y = 425
-        self.control(0,1)
+        self.control(-self.velocidade_x,-self.velocidade_y)
+

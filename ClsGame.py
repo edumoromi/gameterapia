@@ -62,14 +62,15 @@ class Game():
         from ClsHand import Hand
         from ClsPizza import Pizza
         from ClsIngrediente import Ingrediente
-        pegou = False
-        Pizza = Pizza([(self.DISPLAY_W / 1.9), (self.DISPLAY_W * 1/4)])
+        pegou = False #AJUSTAR VARIAVEL
+        ingrediente =""
+        Pizza = Pizza([(self.DISPLAY_W / 1.9), (self.DISPLAY_W * 1/6)])
         Hand = Hand([self.DISPLAY_H/10,self.DISPLAY_W/1.5])
         Molho = Ingrediente([self.DISPLAY_H/1.5,self.DISPLAY_W/1.7],"MolhoTomate.png")
         calabresa = Ingrediente([self.DISPLAY_H/2.0,self.DISPLAY_W/1.7],"calabresa.png")
-        cogumelo = Ingrediente([self.DISPLAY_H/3,self.DISPLAY_W/1.7],"cogumelo.png")
-        tomate = Ingrediente([self.DISPLAY_H/1.1,self.DISPLAY_W/1.7],"tomate.png")
-        #Molho = Ingrediente([self.DISPLAY_H/1.5,self.DISPLAY_W/1.7],"MolhoTomate.png")
+        cogumelo = Ingrediente([self.DISPLAY_H/1.2,self.DISPLAY_W/1.7],"cogumelo.png")
+        tomate = Ingrediente([self.DISPLAY_H / 3, self.DISPLAY_W / 1.7],"tomate.png")
+        massa = Ingrediente([self.DISPLAY_H/6,self.DISPLAY_W/1.7],"massa.png")
         pygame.display.set_caption('Hand!')
         clock = pygame.time.Clock()
         screen = pygame.display.set_mode(self.size)
@@ -90,8 +91,17 @@ class Game():
                         Hand.move("RIGHT","DOWN",self.size)
                     if event.key == pygame.K_SPACE:
                         if Hand.rect.colliderect(Molho.rect):
-                            Hand.pega_ingrediente()
+                            Hand.pega_ingrediente("molho")
                             pegou = True
+                            ingrediente = "molho"
+                        elif Hand.rect.colliderect(massa.rect):
+                            Hand.pega_ingrediente("massa")
+                            pegou = True
+                            ingrediente = "massa"
+                        elif Hand.rect.colliderect(cogumelo.rect):
+                            Hand.pega_ingrediente("cogumelo")
+                            pegou = True
+                            ingrediente = "cogumelo"
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
                         Hand.move("LEFT","UP",self.size)
@@ -100,7 +110,11 @@ class Game():
                     if event.key == pygame.K_SPACE:
                         if pegou:
                             pegou = False
-                            Hand.solta_ingrediente()
+                            if Pizza.rect.colliderect(Hand.rect):
+                                Hand.solta_ingrediente()
+                                Pizza.solta_ingrediente(ingrediente)
+                            else:
+                                Hand.solta_ingrediente()
 
             # atualiza os objetos
             Hand.update()
@@ -112,8 +126,8 @@ class Game():
             screen.blit(calabresa.image,calabresa.rect)
             screen.blit(cogumelo.image,cogumelo.rect)
             screen.blit(tomate.image,tomate.rect)
+            screen.blit(massa.image,massa.rect)
             screen.blit(Hand.image, Hand.rect)
 
-            if Pizza.rect.colliderect(Hand.rect):
-                Hand.solta_ingrediente()
+
             pygame.display.flip()
