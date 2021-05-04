@@ -9,7 +9,7 @@ class Hand(pygame.sprite.Sprite):
         #direcao: 1=direita, -1=esquerda
         #self.direction = 1
         # #carrega a imagem e a posiciona na tela
-        self.image, self.rect = Image.load_image("Mao1.jpg")
+        self.image, self.rect = Image.load_image("MaoAberta.png")
         self.image = pygame.transform.scale(self.image,(100,100)) #Muda o tamanho da imagem
         self.rect.centerx = Game.DISPLAY_W
         self.rect.centery = Game.DISPLAY_H - 100
@@ -60,3 +60,21 @@ class Hand(pygame.sprite.Sprite):
                self.control(-2,0)
             else:
                self.control(2,0)
+
+    def pega_ingrediente(self):
+        x = self.rect.x
+        y = self.rect.y
+        self.image, self.rect = Image.load_image("MaoFechada.png")
+        self.image = pygame.transform.scale(self.image, (100, 100))
+        self.rect.x = x
+        self.rect.y = y
+        self.control(0,-1)
+
+    def solta_ingrediente(self):
+        x = self.rect.x
+        y = self.rect.y
+        self.image, self.rect = Image.load_image("MaoAberta.png")
+        self.image = pygame.transform.scale(self.image, (100, 100))
+        self.rect.x = 360
+        self.rect.y = 425
+        self.control(0,1)

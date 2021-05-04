@@ -11,7 +11,7 @@ class Pizza(pygame.sprite.Sprite):
 
     def __init__(self, startpos):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = Image.load_image('pizza.jpg')
+        self.image, self.rect = Image.load_image('massa.png')
         self.rect.centerx = startpos[0]
         self.rect.centery = startpos[1]
         self.init_pos = startpos
