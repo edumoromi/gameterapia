@@ -1,12 +1,12 @@
 import pygame
 from ClsMenu import *
 import sys
-#import RPi.GPIO as GPIO
-#GPIO.setmode(GPIO.BOARD) #Define pinagem física (outra opção BCM)
+import RPi.GPIO as GPIO
+GPIO.setmode(GPIO.BOARD) #Define pinagem física (outra opção BCM)
 
-#GPIO.setup(8, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
-#GPIO.setup(10, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
-#GPIO.setup(40, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+GPIO.setup(8, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+GPIO.setup(10, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+GPIO.setup(40, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 class Game():
     #Tamanho da tela do jogo.
     DISPLAY_W, DISPLAY_H = 800, 600
@@ -124,7 +124,6 @@ class Game():
                                 Pizza.solta_ingrediente(ingrediente)
                             else:
                                 Hand.solta_ingrediente()
-                            """
             if (GPIO.input(40) == 1) & (delay > trava):
                 Hand.move("LEFT","DOWN",self.size)
                 print("ESQUERDA")
@@ -158,7 +157,6 @@ class Game():
                 else:
                     Hand.solta_ingrediente()
             # atualiza os  objetos
-            """
             print("velocidade:"+ str(Hand.velocidade_x))
             if (delay > trava) & (entrou == True) & (segurando == False):
                 Hand.para_mao()

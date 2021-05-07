@@ -1,6 +1,6 @@
 import sys, pygame, os
 pygame.init()
-from ClsGame import Game
+from ClsGame_Esteira import Game
 g = Game()
 while g.running:
     g.curr_menu.display_menu()

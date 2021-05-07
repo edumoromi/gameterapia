@@ -1,5 +1,9 @@
 import pygame
+
+from ClsImage import Image
 from ClsMenu import *
+from ClsIngrediente import Ingrediente
+import random
 import sys
 #import RPi.GPIO as GPIO
 #GPIO.setmode(GPIO.BOARD) #Define pinagem física (outra opção BCM)
@@ -10,7 +14,9 @@ import sys
 class Game():
     #Tamanho da tela do jogo.
     DISPLAY_W, DISPLAY_H = 800, 600
-
+    lista_ingrediente = []
+    size =800, 600
+    screen = pygame.display.set_mode(size)
     def __init__(self):
         pygame.init()
         self.running, self.playing = True, False
@@ -64,28 +70,41 @@ class Game():
         text_rect.center = (x,y)
         self.display.blit(text_surface,text_rect)
 
+    def update_ingredientes(self):
+        for i in (self.lista_ingrediente):
+            #i.move(2)
+            i.update()
+            self.screen.blit(i.image, i.rect)
+
     def in_game_loop(self):
         from ClsHand import Hand
         from ClsPizza import Pizza
         from ClsIngrediente import Ingrediente
         pegou = False #AJUSTAR VARIAVEL
-        ingrediente =""
-        Pizza = Pizza([(self.DISPLAY_W / 1.9), (self.DISPLAY_W * 1/6)])
-        Hand = Hand([self.DISPLAY_H/10,self.DISPLAY_W/1.5])
-        Molho = Ingrediente([self.DISPLAY_H/1.5,self.DISPLAY_W/1.7],"MolhoTomate.png")
-        calabresa = Ingrediente([self.DISPLAY_H/2.0,self.DISPLAY_W/1.7],"calabresa.png")
-        cogumelo = Ingrediente([self.DISPLAY_H/1.2,self.DISPLAY_W/1.7],"cogumelo.png")
-        tomate = Ingrediente([self.DISPLAY_H / 3, self.DISPLAY_W / 1.7],"tomate.png")
-        massa = Ingrediente([self.DISPLAY_H/6,self.DISPLAY_W/1.7],"massa.png")
+        # ingrediente =""
+        Pizza = Pizza([(self.DISPLAY_W / 2), (self.DISPLAY_W / 2)])
+        Hand1 = Hand([150, self.DISPLAY_W / 2])
+        Hand2 = Hand([self.DISPLAY_W/1.2, self.DISPLAY_W / 2])
+        # Molho = Ingrediente([self.DISPLAY_H/1.5,self.DISPLAY_W/1.7],"MolhoTomate.png")
+        # calabresa = Ingrediente([self.DISPLAY_H/2.0,self.DISPLAY_W/1.7],"calabresa.png")
+        # cogumelo = Ingrediente([self.DISPLAY_H/1.2,self.DISPLAY_W/1.7],"cogumelo.png")
+        # tomate = Ingrediente([self.DISPLAY_H / 3, self.DISPLAY_W / 1.7],"tomate.png")
+        # massa = Ingrediente([self.DISPLAY_H/6,self.DISPLAY_W/1.7],"massa.png")
         pygame.display.set_caption('Hand!')
         clock = pygame.time.Clock()
-        screen = pygame.display.set_mode(self.size)
         black = 255, 255, 255
         delay = 0
         trava = 0
         entrou = False
         segurando = False
+        contador =0
         while 1:
+            if contador % 200 == 0:
+                ingrediente = Ingrediente([150,50], random.randint(1,8))
+                self.lista_ingrediente.append(ingrediente)
+                ingrediente = Ingrediente([self.DISPLAY_W/1.2,50], random.randint(1,8))
+                self.lista_ingrediente.append(ingrediente)
+            contador +=1
             # garante que o programa nao vai rodar a mais que 120fps
             clock.tick(120)
             delay +=1
@@ -95,36 +114,42 @@ class Game():
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
-                        Hand.move("LEFT","DOWN",self.size)
+                        if(self.colisao_ingrediente_hand1(Hand1)):
+                            x = Hand1.rect.x
+                            y = Hand1.rect.y
+                            Hand1.image, Hand1.rect = Image.load_image("MaoFechada.png")
+                            Hand1.image = pygame.transform.scale(Hand1.image, (100, 100))
+                            Hand1.rect.x = x
+                            Hand1.rect.y = y
+                            Hand1.control(2,0)
+                            pegou = True
                     if event.key == pygame.K_RIGHT:
-                        Hand.move("RIGHT","DOWN",self.size)
-                    if event.key == pygame.K_SPACE:
-                        if Hand.rect.colliderect(Molho.rect):
-                            Hand.pega_ingrediente("molho")
+                        if(self.colisao_ingrediente_hand2(Hand2)):
+                            x = Hand2.rect.x
+                            y = Hand2.rect.y
+                            Hand2.image, Hand2.rect = Image.load_image("MaoFechada.png")
+                            Hand2.image = pygame.transform.scale(Hand2.image, (100, 100))
+                            Hand2.rect.x = x
+                            Hand2.rect.y = y
+                            Hand2.control(-2,0)
                             pegou = True
-                            ingrediente = "molho"
-                        elif Hand.rect.colliderect(massa.rect):
-                            Hand.pega_ingrediente("massa")
-                            pegou = True
-                            ingrediente = "massa"
-                        elif Hand.rect.colliderect(cogumelo.rect):
-                            Hand.pega_ingrediente("cogumelo")
-                            pegou = True
-                            ingrediente = "cogumelo"
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
-                        Hand.move("LEFT","UP",self.size)
-                    if event.key == pygame.K_RIGHT:
-                        Hand.move("RIGHT","UP",self.size)
-                    if event.key == pygame.K_SPACE:
                         if pegou:
                             pegou = False
-                            if Pizza.rect.colliderect(Hand.rect):
-                                Hand.solta_ingrediente()
-                                Pizza.solta_ingrediente(ingrediente)
+                            if Pizza.rect.colliderect(Hand1.rect):
+                                Hand1.para_mao()
                             else:
-                                Hand.solta_ingrediente()
-                            """
+                                Hand1.para_mao()
+                    if event.key == pygame.K_RIGHT:
+                        if pegou:
+                            pegou = False
+                            if Pizza.rect.colliderect(Hand2.rect):
+                                Hand2.para_mao()
+                            else:
+                                Hand2.para_mao()
+
+            """
             if (GPIO.input(40) == 1) & (delay > trava):
                 Hand.move("LEFT","DOWN",self.size)
                 print("ESQUERDA")
@@ -159,24 +184,35 @@ class Game():
                     Hand.solta_ingrediente()
             # atualiza os  objetos
             """
-            print("velocidade:"+ str(Hand.velocidade_x))
+
             if (delay > trava) & (entrou == True) & (segurando == False):
                 Hand.para_mao()
                 entrou = False
             segurando = False
-            Hand.update()
-            # atualiza os objetos
-            Hand.update()
-            print(ingrediente)
-            # redesenha a tela
-            screen.fill(black)
-            screen.blit(Pizza.image, Pizza.rect)
-            screen.blit(Molho.image, Molho.rect)
-            screen.blit(calabresa.image,calabresa.rect)
-            screen.blit(cogumelo.image,cogumelo.rect)
-            screen.blit(tomate.image,tomate.rect)
-            screen.blit(massa.image,massa.rect)
-            screen.blit(Hand.image, Hand.rect)
 
+            self.colisao_ingrediente_hand1(Hand1)
+            self.colisao_ingrediente_hand2(Hand2)
+
+            Hand1.update()
+            Hand2.update()
+            # atualiza os objetos
+            # redesenha a tela
+            self.screen.fill(black)
+            self.screen.blit(Pizza.image, Pizza.rect)
+            self.update_ingredientes()
+            self.screen.blit(Hand1.image, Hand1.rect)
+            self.screen.blit(Hand2.image, Hand2.rect)
 
             pygame.display.flip()
+
+    def colisao_ingrediente_hand1(self,HAND1):
+        for i in (self.lista_ingrediente):
+            if HAND1.rect.colliderect(i.rect):
+                return True
+            return False
+
+    def colisao_ingrediente_hand2(self,HAND2):
+        for i in (self.lista_ingrediente):
+            if HAND2.rect.colliderect(i.rect):
+                return True
+        return False
