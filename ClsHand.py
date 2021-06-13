@@ -6,6 +6,7 @@ from ClsPizza import Pizza
 class Hand(pygame.sprite.Sprite):
     velocidade_x = 0 #criar funaco get e set
     velocidade_y = 0 #criar funaco get e set
+    ingrediente = None
     def __init__(self, startpos):
         pygame.sprite.Sprite.__init__(self)
         #direcao: 1=direita, -1=esquerda
@@ -17,6 +18,7 @@ class Hand(pygame.sprite.Sprite):
         self.rect.centery = Game.DISPLAY_H - 100
         self.movex = 0
         self.movey = 0
+        self.pegou = False
 
     #Controla a movimentação da mão
     def control(self, x, y):
@@ -52,17 +54,15 @@ class Hand(pygame.sprite.Sprite):
             if dir == "RIGHT":
                 if self.rect.x <= -2:
                     self.rect.x = 2
-                if self.velocidade_x != 2:
+                if self.movex != 2:
                     self.control(2,0)
-                    self.velocidade_x = 2
-                    self.velocidade_y = 0
+
             else:
                 if self.rect.x >= Game.DISPLAY_W:
                     self.rect.x = Game.DISPLAY_W
-                if self.velocidade_x != -2:
+                if self.movex != -2:
                     self.control(-2,0)
-                    self.velocidade_x = -2
-                    self.velocidade_y = 0
+
         elif key == "UP":
             self.para_mao()
     def pega_ingrediente(self,ingrediente): #AJUSTAR FUNCAO
@@ -72,21 +72,20 @@ class Hand(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (100, 100))
         self.rect.x = x
         self.rect.y = y
-        if ingrediente == "molho":
+        print(ingrediente[0].name)
+        if ingrediente[0].name == "MolhoTomate.png":
             if self.velocidade_y !=-2:
                 self.control(0,-2)
-                self.velocidade_x = 0
-                self.velocidade_y = -2
-        elif ingrediente == "massa":
-            if (self.velocidade_x !=2) & (self.velocidade_y !=-2):
+
+        elif ingrediente[0].name == "massa.png":
+            if (self.movex !=2) & (self.movey !=-2):
                 self.control(2,-2)
-                self.velocidade_x = 2
-                self.velocidade_y = -2
-        elif ingrediente == "cogumelo":
-            if self.velocidade_y !=-3:
+
+        elif ingrediente[0].name == "cogumelo.png":
+            if self.movey !=-3:
                 self.control(-1,-3)
-                self.velocidade_x = -1
-                self.velocidade_y = -3
+
+
     def solta_ingrediente(self):
         x = self.rect.x
         y = self.rect.y
@@ -95,7 +94,8 @@ class Hand(pygame.sprite.Sprite):
         self.rect.x = 360
         self.rect.y = 425
         self.para_mao()
+        self.ingrediente = None
+
     def para_mao(self):
-        self.control(-self.velocidade_x,-self.velocidade_y)
-        self.velocidade_x = self.velocidade_x -self.velocidade_x
-        self.velocidade_y = self.velocidade_y -self.velocidade_y
+        self.movex = 0
+        self.movey = 0
