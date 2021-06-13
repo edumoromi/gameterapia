@@ -56,7 +56,6 @@ class Hand(pygame.sprite.Sprite):
                     self.rect.x = 2
                 if self.movex != 2:
                     self.control(2,0)
-
             else:
                 if self.rect.x >= Game.DISPLAY_W:
                     self.rect.x = Game.DISPLAY_W

@@ -105,7 +105,7 @@ class Game():
                             self.Hand.solta_ingrediente()
 
     def checa_eventos_push(self):
-        Objeto = []
+        Objeto = [None]
         self.delay += 1
         import RPi.GPIO as GPIO
         GPIO.setmode(GPIO.BOARD)  # Define pinagem física (outra opção BCM)
@@ -113,7 +113,8 @@ class Game():
         GPIO.setup(8, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(10, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(40, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
+        print(self.trava)
+        print(self.delay)
         if (GPIO.input(40) == 1) & (self.delay > self.trava):
             self.Hand.move("LEFT", "DOWN", self.size)
             self.trava = self.delay
@@ -125,17 +126,18 @@ class Game():
             self.entrou = True
 
         if (GPIO.input(10) == 1) & (self.delay > self.trava):
-            segurando = True
+            self.segurando = True
             if self.colisao_ingrediente(Objeto):
                 self.Hand.pega_ingrediente(Objeto)
                 self.Hand.pegou = True
                 self.Hand.ingrediente = Objeto[0]
 
         if self.Hand.pegou & (self.segurando == False):
-            self.pegou = False
-            if self.Pìzza.rect.colliderect(self.Hand.rect):
+            self.Hand.pegou = False
+            if self.Pizza.rect.colliderect(self.Hand.rect):
+                self.Pizza.solta_ingrediente(self.Hand.ingrediente)
                 self.Hand.solta_ingrediente()
-                self.Pìzza.solta_ingrediente(self.Hand.ingrediente)
+
             else:
                 self.Hand.solta_ingrediente()
 
