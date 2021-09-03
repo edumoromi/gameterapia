@@ -184,7 +184,7 @@ class Game():
 
         while 1:
             # garante que o programa nao vai rodar a mais que 120fps
-            self.clock.tick(120)
+            self.clock.tick(30)
 
             self.checa_eventos_teclado()
             #self.checa_eventos_push()
