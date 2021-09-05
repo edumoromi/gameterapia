@@ -45,7 +45,7 @@ class Game():
 
         # Teste som
 
-        self.sound = pygame.mixer.Sound('./images/error.mp3')
+        #self.sound = pygame.mixer.Sound('./images/error.mp3')
 
     def game_loop(self):
         while self.playing:
@@ -179,34 +179,23 @@ class Game():
     def in_game_loop(self):
         from ClsHand import Hand
         from ClsPizza import Pizza
-        from ClsIngrediente import Ingrediente
-        from ClsFase import Fase
-
-        pegou = False #AJUSTAR VARIAVEL
 
         #Instanciando a Pizza e a mão
-        #Pizza = Pizza([(self.DISPLAY_W / 1.9), (self.DISPLAY_W * 1/6)])
-        #Hand = Hand([self.DISPLAY_H/10,self.DISPLAY_W/1.5])
-        Hand.pizzaCenter = Pizza.rect.center
-
-        #Instanciando os ingredientes
-        Molho = Ingrediente([self.DISPLAY_H/1.5,self.DISPLAY_W/1.7],"MolhoTomate.png")
-        calabresa = Ingrediente([self.DISPLAY_H/2.0,self.DISPLAY_W/1.7],"calabresa.png")
-        cogumelo = Ingrediente([self.DISPLAY_H/1.2,self.DISPLAY_W/1.7],"cogumelo.png")
-        tomate = Ingrediente([self.DISPLAY_H / 3, self.DISPLAY_W / 1.7],"tomate.png")
-        massa = Ingrediente([self.DISPLAY_H/6,self.DISPLAY_W/1.7],"massa.png")
-
-
-        pegou = False #AJUSTAR VARIAVEL
-        delay =0
         self.Pizza = Pizza([(self.DISPLAY_W / 1.9), (self.DISPLAY_W * 1/6)])
         self.Hand = Hand([self.DISPLAY_H/10,self.DISPLAY_W/1.5])
+        self.Hand.pizzaCenter = self.Pizza.rect.center
+
+
+
+        delay =0
+
+        #self.Pizza = Pizza([(self.DISPLAY_W / 1.9), (self.DISPLAY_W * 1/6)])
+        #self.Hand = Hand([self.DISPLAY_H/10,self.DISPLAY_W/1.5])
         self.cria_igredientes()
 
         pygame.display.set_caption('Hand!')
-
-        pygame.mixer.music.load("./images/background.mp3")
-        pygame.mixer.music.play()
+        #pygame.mixer.music.load("./images/background.mp3")
+        #pygame.mixer.music.play()
 
         while 1:
             # garante que o programa nao vai rodar a mais que 120fps
@@ -221,14 +210,11 @@ class Game():
 
             # redesenha a tela
 
-            screen.fill(black)
-            screen.blit(Pizza.image, Pizza.rect)
-            screen.blit(Molho.image, Molho.rect)
-            screen.blit(calabresa.image,calabresa.rect)
-            screen.blit(cogumelo.image,cogumelo.rect)
-            screen.blit(tomate.image,tomate.rect)
-            screen.blit(massa.image,massa.rect)
-            screen.blit(Hand.image, Hand.rect)
+            self.screen.fill(self.black)
+            self.screen.blit(self.Pizza.image, self.Pizza.rect)
+            self.update_ingredientes()
+            self.screen.blit(self.Hand.image, self.Hand.rect)
+            pygame.display.flip()
 
 
             pygame.display.flip()
