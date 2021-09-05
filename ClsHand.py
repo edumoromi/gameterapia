@@ -1,13 +1,15 @@
 import pygame
 from ClsImage import Image
 from ClsGame import Game
-from ClsPizza import Pizza
+from ClsFase import Fase
 
 class Hand(pygame.sprite.Sprite):
+
     velocidade_x = 0 #criar funaco get e set
     velocidade_y = 0 #criar funaco get e set
     ingrediente = None
     #cont =0
+
     def __init__(self, startpos):
         pygame.sprite.Sprite.__init__(self)
         #direcao: 1=direita, -1=esquerda
@@ -19,6 +21,8 @@ class Hand(pygame.sprite.Sprite):
         self.rect.centery = Game.DISPLAY_H - 100
         self.movex = 0
         self.movey = 0
+        self.ingrediente = 0
+        self.pizzaCenter = []
         self.pegou = False
 
     #Controla a movimentação da mão
@@ -71,14 +75,26 @@ class Hand(pygame.sprite.Sprite):
                     self.control(-2,0)
 
         elif key == "UP":
+
             self.para_mao()
     def pega_ingrediente(self,ingrediente): #AJUSTAR FUNCAO
+
         x = self.rect.x
         y = self.rect.y
         self.image, self.rect = Image.load_image("MaoFechada.png")
         self.image = pygame.transform.scale(self.image, (100, 100))
         self.rect.x = x
         self.rect.y = y
+
+
+        #Teste mão andando até a pizza
+
+        fase=Fase()
+
+        #if ingrediente == fase.ingredientes[2]:
+           #self.control(0, -2)
+
+
         print(x,y)
         print(ingrediente[0].name)
         self.control(float(self.calculo_velocidade(-20, 380,67)),float(-20))
@@ -117,3 +133,4 @@ class Hand(pygame.sprite.Sprite):
 
 
         
+

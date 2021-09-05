@@ -3,12 +3,15 @@ from typing import Any
 import pygame
 from ClsMenu import *
 import sys
+import time
+
 #import RPi.GPIO as GPIO
 #GPIO.setmode(GPIO.BOARD) #Define pinagem física (outra opção BCM)
 
 #GPIO.setup(8, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 #GPIO.setup(10, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 #GPIO.setup(40, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+
 class Game():
     #Tamanho da tela do jogo.
     DISPLAY_W, DISPLAY_H = 800, 600
@@ -23,6 +26,8 @@ class Game():
         pygame.init()
         self.running, self.playing = True, False
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
+        self.size = self.DISPLAY_W, self.DISPLAY_H
+        
         self.display = pygame.Surface((self.DISPLAY_W,self.DISPLAY_H))
         self.window = pygame.display.set_mode(((self.DISPLAY_W,self.DISPLAY_H)))
         #self.font_name = '8-BIT WONDER.TTF'
@@ -38,14 +43,15 @@ class Game():
         self.segurando = False
 
 
+        # Teste som
+
+        self.sound = pygame.mixer.Sound('./images/error.mp3')
+
     def game_loop(self):
         while self.playing:
             self.check_events()
             if self.START_KEY:
-                self.playing= False
-            self.display.fill(self.BLACK)
-            self.draw_text('Thanks for Playing', 20, self.DISPLAY_W/2, self.DISPLAY_H/2)
-            self.window.blit(self.display, (0,0))
+                self.playing = False
             pygame.display.update()
             self.reset_keys()
             self.in_game_loop()
@@ -150,12 +156,12 @@ class Game():
     def reset_keys(self):
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
 
-    def draw_text(self, text, size, x, y ):
+    def draw_text(self, text, size, x, y):
         font = pygame.font.Font(self.font_name,size)
         text_surface = font.render(text, True, self.WHITE)
         text_rect = text_surface.get_rect()
-        text_rect.center = (x,y)
-        self.display.blit(text_surface,text_rect)
+        text_rect.center = (x, y)
+        self.display.blit(text_surface, text_rect)
 
     def update_ingredientes(self):
         for i in (self.lista_ingredientes):
@@ -173,6 +179,23 @@ class Game():
     def in_game_loop(self):
         from ClsHand import Hand
         from ClsPizza import Pizza
+        from ClsIngrediente import Ingrediente
+        from ClsFase import Fase
+
+        pegou = False #AJUSTAR VARIAVEL
+
+        #Instanciando a Pizza e a mão
+        #Pizza = Pizza([(self.DISPLAY_W / 1.9), (self.DISPLAY_W * 1/6)])
+        #Hand = Hand([self.DISPLAY_H/10,self.DISPLAY_W/1.5])
+        Hand.pizzaCenter = Pizza.rect.center
+
+        #Instanciando os ingredientes
+        Molho = Ingrediente([self.DISPLAY_H/1.5,self.DISPLAY_W/1.7],"MolhoTomate.png")
+        calabresa = Ingrediente([self.DISPLAY_H/2.0,self.DISPLAY_W/1.7],"calabresa.png")
+        cogumelo = Ingrediente([self.DISPLAY_H/1.2,self.DISPLAY_W/1.7],"cogumelo.png")
+        tomate = Ingrediente([self.DISPLAY_H / 3, self.DISPLAY_W / 1.7],"tomate.png")
+        massa = Ingrediente([self.DISPLAY_H/6,self.DISPLAY_W/1.7],"massa.png")
+
 
         pegou = False #AJUSTAR VARIAVEL
         delay =0
@@ -182,20 +205,30 @@ class Game():
 
         pygame.display.set_caption('Hand!')
 
+        pygame.mixer.music.load("./images/background.mp3")
+        pygame.mixer.music.play()
+
         while 1:
             # garante que o programa nao vai rodar a mais que 120fps
+
             self.clock.tick(30)
 
             self.checa_eventos_teclado()
             #self.checa_eventos_push()
+
             # atualiza os objetos
             self.Hand.update()
 
             # redesenha a tela
-            self.screen.fill(self.black)
-            self.screen.blit(self.Pizza.image, self.Pizza.rect)
-            self.update_ingredientes()
-            self.screen.blit(self.Hand.image, self.Hand.rect)
+
+            screen.fill(black)
+            screen.blit(Pizza.image, Pizza.rect)
+            screen.blit(Molho.image, Molho.rect)
+            screen.blit(calabresa.image,calabresa.rect)
+            screen.blit(cogumelo.image,cogumelo.rect)
+            screen.blit(tomate.image,tomate.rect)
+            screen.blit(massa.image,massa.rect)
+            screen.blit(Hand.image, Hand.rect)
+
+
             pygame.display.flip()
-
-

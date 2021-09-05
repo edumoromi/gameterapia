@@ -1,7 +1,9 @@
 import sys, pygame, os
 pygame.init()
+
 from ClsGame import Game
 g = Game()
+
 while g.running:
     g.curr_menu.display_menu()
     g.game_loop()
@@ -9,6 +11,3 @@ while g.running:
 
 
 
-
-if __name__ == "__main__":
-    main()

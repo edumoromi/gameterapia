@@ -1,4 +1,7 @@
 import pygame
+
+import random
+
 from ClsImage import Image
 
 def get():
@@ -6,6 +9,7 @@ def get():
     return tamanhoX
 
 class Ingrediente(pygame.sprite.Sprite):
+
     def __init__(self, startpos,image):
         pygame.sprite.Sprite.__init__(self)
         self.name = image
