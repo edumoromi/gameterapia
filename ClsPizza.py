@@ -21,12 +21,11 @@ class Pizza(pygame.sprite.Sprite):
     def solta_ingrediente(self,ingrediente):
         x = self.rect.x
         y = self.rect.y
-
-        if ingrediente == "massa":
+        if ingrediente.name == "massa":
             self.image, self.rect = Image.load_image('pizza_massa.png')
-        elif ingrediente == "molho":
+        elif ingrediente.name == "MolhoTomate":
             self.image, self.rect = Image.load_image('pizza_molho.png')
-        elif ingrediente == "cogumelo":
+        elif ingrediente.name == "cogumelo":
             self.image, self.rect = Image.load_image('pizza_cogumelo.png')
         self.rect.x = x
         self.rect.y = y

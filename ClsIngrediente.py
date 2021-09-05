@@ -1,5 +1,7 @@
 import pygame
+
 import random
+
 from ClsImage import Image
 
 def get():
@@ -10,9 +12,8 @@ class Ingrediente(pygame.sprite.Sprite):
 
     def __init__(self, startpos,image):
         pygame.sprite.Sprite.__init__(self)
+        self.name = image
         self.image, self.rect = Image.load_image(image)
         self.rect.centerx = startpos[0]
         self.rect.centery = startpos[1]
         self.init_pos = startpos
-
-
