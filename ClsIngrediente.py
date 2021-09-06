@@ -4,11 +4,14 @@ import random
 
 from ClsImage import Image
 
+
 def get():
     tamanhoX = Ingrediente.get_rectx()
     return tamanhoX
 
 class Ingrediente(pygame.sprite.Sprite):
+    ingredientes = ["massa", "cogumelo", "molho", "tomate", "AzeitonaPreta", "AzeitonaVerde", "queijo", "calabresa",
+                    "cebola", "peixe"]
 
     def __init__(self, startpos,image):
         pygame.sprite.Sprite.__init__(self)

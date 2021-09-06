@@ -91,6 +91,8 @@ class Game():
                     self.Hand.move("RIGHT", "DOWN", self.size)
                 if event.key == pygame.K_SPACE:
                     if self.colisao_ingrediente(Objeto):
+                        #self.Hand.inix = self.Hand.movex #!!!
+                        #self.Hand.iniy = self.Hand.movey #!!!
                         self.Hand.pega_ingrediente(Objeto)
                         self.Hand.pegou = True
                         self.Hand.ingrediente = Objeto[0]
@@ -107,8 +109,10 @@ class Game():
                         if self.Pizza.rect.colliderect(self.Hand.rect):
                             self.Pizza.solta_ingrediente(self.Hand.ingrediente)
                             self.Hand.solta_ingrediente()
+                            #self.Hand.i = 0  # !!!
                         else:
                             self.Hand.solta_ingrediente()
+                            self.Hand.i = 0  # !!!
 
     def checa_eventos_push(self):
         Objeto = [None]
@@ -179,25 +183,22 @@ class Game():
     def in_game_loop(self):
         from ClsHand import Hand
         from ClsPizza import Pizza
+        from ClsFase import Fase
+
+        #Fase = Fase(1)
 
         #Instanciando a Pizza e a mão
         self.Pizza = Pizza([(self.DISPLAY_W / 1.9), (self.DISPLAY_W * 1/6)])
         self.Hand = Hand([self.DISPLAY_H/10,self.DISPLAY_W/1.5])
         self.Hand.pizzaCenter = self.Pizza.rect.center
 
-
-
-        delay =0
-
-        #self.Pizza = Pizza([(self.DISPLAY_W / 1.9), (self.DISPLAY_W * 1/6)])
-        #self.Hand = Hand([self.DISPLAY_H/10,self.DISPLAY_W/1.5])
         self.cria_igredientes()
 
         pygame.display.set_caption('Hand!')
         #pygame.mixer.music.load("./images/background.mp3")
         #pygame.mixer.music.play()
 
-        while 1:
+        while 1: #!!! QUEBRAR QUANDO FASE ACABAR
             # garante que o programa nao vai rodar a mais que 120fps
 
             self.clock.tick(30)
