@@ -24,8 +24,8 @@ class Hand(pygame.sprite.Sprite):
         self.ingrediente = 0
         self.pizzaCenter = []
         self.pegou = False
-        self.inix = 0
-        self.iniy  = 0
+        self.inix = startpos[0]
+        self.iniy  = startpos[1]
         self.i = 0
     #Controla a movimentação da mão
     def control(self, x, y):
@@ -65,42 +65,37 @@ class Hand(pygame.sprite.Sprite):
             if dir == "RIGHT":
                 if self.rect.x <= -2:
                     self.rect.x = 2
-                if self.movex != 2:
-                    self.control(2,0)
+                if (self.movex != 2)  & (self.movex != 4):
+                    self.control(4,0)
             else:
                 if self.rect.x >= Game.DISPLAY_W:
                     self.rect.x = Game.DISPLAY_W
-                if self.movex != -2:
-                    self.control(-2,0)
+                if (self.movex != -2) & (self.movex != -4):
+                    self.control(-4,0)
 
         elif key == "UP":
 
             self.para_mao()
     def pega_ingrediente(self,ingrediente): #AJUSTAR FUNCAO
-
         x = self.rect.x
         y = self.rect.y
         self.image, self.rect = Image.load_image("MaoFechada.png")
         self.image = pygame.transform.scale(self.image, (100, 100))
         self.rect.x = x
         self.rect.y = y
-
-
-        #Teste mão andando até a pizza
-
-        #fase=Fase()
-
-
         self.control(float(self.calculo_velocidade(-20, 380,67)),float(-20))
+        self.ingrediente = ingrediente
+        self.pegou = True
 
     def solta_ingrediente(self):
         x = self.rect.x
         y = self.rect.y
         self.image, self.rect = Image.load_image("MaoAberta.png")
         self.image = pygame.transform.scale(self.image, (100, 100))
-        self.rect.x = 360
-        self.rect.y = 430
+        self.rect.x = self.inix
+        self.rect.y = self.iniy
         self.para_mao()
+        self.ingrediente.solta_ingrediente()
         self.ingrediente = None
         print(x,y)
 

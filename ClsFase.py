@@ -2,7 +2,7 @@ import random
 import pygame
 from ClsIngrediente import Ingrediente
 class Fase():
-    Fase_Pizza_Ingredientes = [1, 5], [2, 5], [3, 4]
+    Fase_Pizza_Ingredientes = [1, 5], [2, 5], [3, 4], [4,5]
     listaPizza = []
     lista_ingredientes = []
     movimentacao_automatica = None
@@ -43,40 +43,40 @@ class Fase():
             self.localizacao_ingredientes = []
             self.localizacao_mao.append([10,1.5])
             if self.dificuldade == 1:
-                self.setListaPizza(self.Fase_Pizza_Ingredientes[self.dificuldade])
+                self.setListaPizza(self.Fase_Pizza_Ingredientes[self.dificuldade-1])
                 self.movimentacao_automatica = True
                 self.segurar_ao_clicar = False
             elif self.dificuldade == 2:
-                self.setListaPizza(self.Fase_Pizza_Ingredientes[self.dificuldade])
+                self.setListaPizza(self.Fase_Pizza_Ingredientes[self.dificuldade-1])
                 self.movimentacao_automatica = True
                 self.segurar_ao_clicar = True
             elif self.dificuldade == 3:
-                self.setListaPizza(self.Fase_Pizza_Ingredientes[self.dificuldade])
+                self.setListaPizza(self.Fase_Pizza_Ingredientes[self.dificuldade-1])
                 self.movimentacao_automatica = False
                 self.segurar_ao_clicar = True
             elif self.dificuldade == 4:
-                self.setListaPizza(self.Fase_Pizza_Ingredientes[self.dificuldade])
+                self.setListaPizza(self.Fase_Pizza_Ingredientes[self.dificuldade-1])
                 self.movimentacao_automatica = False
                 self.segurar_ao_clicar = True
                 self.contador = 5000
         else:
             self.localizacao_ingredientes = []
-            self.localizacao_mao.append([5,4])
-            self.localizacao_mao.append([1,4])
+            self.localizacao_mao.append([8,2])
+            self.localizacao_mao.append([1.3,2])
             if self.dificuldade == 1:
-                self.setListaPizza(self.Fase_Pizza_Ingredientes[self.dificuldade])
+                self.setListaPizza(self.Fase_Pizza_Ingredientes[self.dificuldade-1])
                 self.movimentacao_automatica = True
                 self.segurar_ao_clicar = False
             elif self.dificuldade == 2:
-                self.setListaPizza(self.Fase_Pizza_Ingredientes[self.dificuldade])
+                self.setListaPizza(self.Fase_Pizza_Ingredientes[self.dificuldade-1])
                 self.movimentacao_automatica = True
                 self.segurar_ao_clicar = True
             elif self.dificuldade == 3:
-                self.setListaPizza(self.Fase_Pizza_Ingredientes[self.dificuldade])
+                self.setListaPizza(self.Fase_Pizza_Ingredientes[self.dificuldade-1])
                 self.movimentacao_automatica = False
                 self.segurar_ao_clicar = True
             elif self.dificuldade == 4:
-                self.setListaPizza(self.Fase_Pizza_Ingredientes[self.dificuldade])
+                self.setListaPizza(self.Fase_Pizza_Ingredientes[self.dificuldade-1])
                 self.movimentacao_automatica = False
                 self.segurar_ao_clicar = True
                 self.contador = 5000

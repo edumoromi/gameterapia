@@ -14,6 +14,8 @@ class Ingrediente(pygame.sprite.Sprite):
     def __init__(self, startpos,image):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = Image.load_image(self.ingredientes[image][1] + ".png")
+        self.image = pygame.transform.scale(self.image,(50,50)) #Muda o tamanho da imagem
+        self.ingrediente = image
         self.rect.centerx = startpos[0]
         self.rect.centery = startpos[1]
         self.init_pos = startpos
@@ -27,3 +29,15 @@ class Ingrediente(pygame.sprite.Sprite):
     def update(self):
         self.rect.x = self.rect.x + self.movex
         self.rect.y = self.rect.y + self.movey
+
+    def calculo_velocidade(self,Vy, Px,Py):
+       Vx = (Px-self.rect.x) * Vy / (Py-self.rect.y)
+       return Vx
+
+    def pega_ingrediente(self): #AJUSTAR FUNCAO
+       self.control(float(self.calculo_velocidade(-20, 380,67)),float(-20))
+    
+    def solta_ingrediente(self):
+        self.movex = 0
+        self.movey = 0
+
