@@ -91,7 +91,6 @@ class Hand(pygame.sprite.Sprite):
         #fase=Fase()
 
 
-        print(ingrediente[0].name)
         self.control(float(self.calculo_velocidade(-20, 380,67)),float(-20))
 
     def solta_ingrediente(self):

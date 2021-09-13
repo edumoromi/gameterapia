@@ -75,45 +75,46 @@ class Game():
 
     def colisao_ingrediente(self,objeto):
         for i in (self.lista_ingredientes):
-            if self.Hand.rect.colliderect(i.rect):
+            if self.Hand[0].rect.colliderect(i.rect):
                 objeto[0] = i
                 return True
         return False
 
-    def checa_eventos_teclado(self):
-        Objeto = [None]
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    self.Hand.move("LEFT", "DOWN", self.size)
-                if event.key == pygame.K_RIGHT:
-                    self.Hand.move("RIGHT", "DOWN", self.size)
-                if event.key == pygame.K_SPACE:
-                    if self.colisao_ingrediente(Objeto):
-                        #self.Hand.inix = self.Hand.movex #!!!
-                        #self.Hand.iniy = self.Hand.movey #!!!
-                        self.Hand.pega_ingrediente(Objeto)
-                        self.Hand.pegou = True
-                        self.Hand.ingrediente = Objeto[0]
-                        print(Objeto[0].name)
+    def checa_eventos_teclado(self,Fase):
+        if Fase.jogo != "esteira":
+            Objeto = [None]
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_LEFT:
+                        self.Hand[0].move("LEFT", "DOWN", self.size)
+                    if event.key == pygame.K_RIGHT:
+                        self.Hand[0].move("RIGHT", "DOWN", self.size)
+                    if event.key == pygame.K_SPACE:
+                        if self.colisao_ingrediente(Objeto):
+                            #self.Hand.inix = self.Hand.movex #!!!
+                            #self.Hand.iniy = self.Hand.movey #!!!
+                            self.Hand[0].pega_ingrediente(Objeto)
+                            self.Hand[0].pegou = True
+                            self.Hand[0].ingrediente = Objeto[0]
 
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_LEFT:
-                    self.Hand.move("LEFT", "UP", self.size)
-                if event.key == pygame.K_RIGHT:
-                    self.Hand.move("RIGHT", "UP", self.size)
-                if event.key == pygame.K_SPACE:
-                    if self.Hand.pegou:
-                        self.Hand.pegou = False
-                        if self.Pizza.rect.colliderect(self.Hand.rect):
-                            self.Pizza.solta_ingrediente(self.Hand.ingrediente)
-                            self.Hand.solta_ingrediente()
-                            #self.Hand.i = 0  # !!!
-                        else:
-                            self.Hand.solta_ingrediente()
-                            self.Hand.i = 0  # !!!
+
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_LEFT:
+                        self.Hand[0].move("LEFT", "UP", self.size)
+                    if event.key == pygame.K_RIGHT:
+                        self.Hand[0].move("RIGHT", "UP", self.size)
+                    if event.key == pygame.K_SPACE:
+                        if self.Hand[0].pegou:
+                            self.Hand[0].pegou = False
+                            if self.Pizza.rect.colliderect(self.Hand[0].rect):
+                                self.Pizza.solta_ingrediente(self.Hand[0].ingrediente)
+                                self.Hand[0].solta_ingrediente()
+                                #self.Hand.i = 0  # !!!
+                            else:
+                                self.Hand[0].solta_ingrediente()
+                                self.Hand[0].i = 0  # !!!
 
     def checa_eventos_push(self):
         Objeto = [None]
@@ -236,7 +237,7 @@ class Game():
             self.clock.tick(30)
             self.cria_igredientes(ObjFase)
 
-            self.checa_eventos_teclado()
+            self.checa_eventos_teclado(ObjFase)
             #self.checa_eventos_push()
 
             # atualiza os objetos
