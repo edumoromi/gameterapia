@@ -17,8 +17,8 @@ class Hand(pygame.sprite.Sprite):
         # #carrega a imagem e a posiciona na tela
         self.image, self.rect = Image.load_image("MaoAberta.png")
         self.image = pygame.transform.scale(self.image,(100,100)) #Muda o tamanho da imagem
-        self.rect.centerx = Game.DISPLAY_W
-        self.rect.centery = Game.DISPLAY_H - 100
+        self.rect.x = startpos[0]
+        self.rect.y = startpos[1]
         self.movex = 0.000
         self.movey = 0.000
         self.ingrediente = 0

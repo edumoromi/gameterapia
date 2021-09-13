@@ -4,7 +4,7 @@ import pygame
 from ClsMenu import *
 import sys
 import time
-
+import random
 #import RPi.GPIO as GPIO
 #GPIO.setmode(GPIO.BOARD) #Define pinagem física (outra opção BCM)
 
@@ -21,7 +21,7 @@ class Game():
     screen = pygame.display.set_mode(size)
     lista_ingredientes = []
     Pizza = ""
-    Hand = ""
+    Hand = []
     def __init__(self):
         pygame.init()
         self.running, self.playing = True, False
@@ -39,6 +39,7 @@ class Game():
         self.curr_menu = self.main_menu
         self.delay =0
         self.trava = 0
+        self.contador = 0
         self.entrou = False
         self.segurando = False
 
@@ -172,50 +173,75 @@ class Game():
             # i.move(2)
             i.update()
             self.screen.blit(i.image, i.rect)
-    def cria_igredientes(self):
+    def cria_igredientes(self,Fase):
         from ClsIngrediente import Ingrediente
-        self.lista_ingredientes.append(Ingrediente([self.DISPLAY_H/1.5,self.DISPLAY_W/1.7],"MolhoTomate.png"))
-        self.lista_ingredientes.append(Ingrediente([self.DISPLAY_H/2.0,self.DISPLAY_W/1.7],"calabresa.png"))
-        self.lista_ingredientes.append(Ingrediente([self.DISPLAY_H/1.2,self.DISPLAY_W/1.7],"cogumelo.png"))
-        self.lista_ingredientes.append(Ingrediente([self.DISPLAY_H / 3, self.DISPLAY_W / 1.7],"tomate.png"))
-        self.lista_ingredientes.append(Ingrediente([self.DISPLAY_H/6,self.DISPLAY_W/1.7],"massa.png"))
+        print(Fase.jogo)
+        if Fase.jogo == "esteira":
+            if self.contador % 100 == 0:
+                ingrediente = Ingrediente([150,50], random.randint(1,8))
+                self.lista_ingredientes.append(ingrediente)
+                ingrediente.control(0,2)
+                ingrediente = Ingrediente([self.DISPLAY_W/1.2,50], random.randint(1,8))
+                ingrediente.control(0,2)
+                self.lista_ingredientes.append(ingrediente)
+        else:
+            qtdingredientes = len(Fase.lista_ingredientes) +1
+            if self.contador % 10000 == 0:
+                for ingrediente_pizza in Fase.lista_ingredientes:
+                    self.lista_ingredientes.append(Ingrediente([self.DISPLAY_W/qtdingredientes,self.DISPLAY_H/1.3],ingrediente_pizza[0]))
+                    qtdingredientes -=1
+
+        self.contador +=1
+              
+
+
+    def cria_objetos(self,Fase):
+        from ClsPizza import Pizza
+        self.Pizza = Pizza([(self.DISPLAY_W / 1.9), (self.DISPLAY_W * 1/6)])
+        #self.Hand = Hand([self.DISPLAY_H/10,self.DISPLAY_W/1.5])
+        #self.Hand.pizzaCenter = self.Pizza.rect.center
+        #self.cria_igredientes(Fase)
+        self.cria_maos(Fase)
+
+    def cria_maos(self,ObjFase):
+       from ClsHand import Hand
+       for localizacao in ObjFase.localizacao_mao:
+            self.Hand.append(Hand([self.DISPLAY_W/localizacao[0],self.DISPLAY_H/localizacao[1]]))
+
+    def atualiza_objetos(self,Fase):
+        self.atualiza_maos(Fase)
+
+
+    def atualiza_maos(self,Fase):
+        for mao in self.Hand:
+            mao.update()
+
+
+    def desenha_tela(self):
+        self.screen.fill(self.black)
+        self.update_ingredientes()
+        for mao in self.Hand:
+            self.screen.blit(mao.image, mao.rect)
+        self.screen.blit(self.Pizza.image, self.Pizza.rect)
 
     def in_game_loop(self):
-        from ClsHand import Hand
-        from ClsPizza import Pizza
         from ClsFase import Fase
-
-        #Fase = Fase(1)
-
-        #Instanciando a Pizza e a mão
-        self.Pizza = Pizza([(self.DISPLAY_W / 1.9), (self.DISPLAY_W * 1/6)])
-        self.Hand = Hand([self.DISPLAY_H/10,self.DISPLAY_W/1.5])
-        self.Hand.pizzaCenter = self.Pizza.rect.center
-
-        self.cria_igredientes()
-
-        pygame.display.set_caption('Hand!')
+        ObjFase = Fase(1,"")
+        self.cria_objetos(ObjFase)
+        contador =0
         #pygame.mixer.music.load("./images/background.mp3")
         #pygame.mixer.music.play()
 
         while 1: #!!! QUEBRAR QUANDO FASE ACABAR
-            # garante que o programa nao vai rodar a mais que 120fps
-
             self.clock.tick(30)
+            self.cria_igredientes(ObjFase)
 
             self.checa_eventos_teclado()
             #self.checa_eventos_push()
 
             # atualiza os objetos
-            self.Hand.update()
+            self.atualiza_objetos(ObjFase)
+            #self.Hand.update()
 
-            # redesenha a tela
-
-            self.screen.fill(self.black)
-            self.screen.blit(self.Pizza.image, self.Pizza.rect)
-            self.update_ingredientes()
-            self.screen.blit(self.Hand.image, self.Hand.rect)
-            pygame.display.flip()
-
-
+            self.desenha_tela()
             pygame.display.flip()
