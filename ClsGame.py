@@ -22,6 +22,7 @@ class Game():
     lista_ingredientes = []
     Pizza = ""
     Hand = []
+    mov = "D" 
     def __init__(self):
         pygame.init()
         self.running, self.playing = True, False
@@ -91,10 +92,19 @@ class Game():
         if (Fase.jogo != "esteira") & (Fase.movimentacao_automatica == True)  & (Fase.segurar_ao_clicar == True):
             Objeto = [None]
 
-            if self.Hand[0].rect.x <= 700:
+            if (self.Hand[0].rect.x <= 700) & (self.mov == "D"):
                 self.Hand[0].move("RIGHT", "DOWN", self.size)
+            elif (self.Hand[0].rect.x >= 700)  & (self.mov == "D"):
+                self.mov = "E"
+                self.Hand[0].movex = 0
+            elif (self.Hand[0].rect.x >= 0) & (self.mov == "E"):
                 self.Hand[0].move("LEFT", "DOWN", self.size)
+                self.mov = "E"
+            elif self.Hand[0].rect.x <= 0 & (self.mov == "E"):
+                self.mov = "D"
+                self.Hand[0].movex = 0
             print(self.Hand[0].rect.x)
+            print(self.mov)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
@@ -304,9 +314,9 @@ class Game():
 
     def in_game_loop(self):
         from ClsFase import Fase
-        #ObjFase = Fase(2,"esteira")
+        ObjFase = Fase(2,"esteira")
         #ObjFase = Fase(4,"")
-        ObjFase = Fase(2,"")
+        #ObjFase = Fase(2,"")
 
         self.cria_objetos(ObjFase)
         contador =0
