@@ -16,7 +16,7 @@ class Hand(pygame.sprite.Sprite):
         #self.direction = 1
         # #carrega a imagem e a posiciona na tela
         self.image, self.rect = Image.load_image("MaoAberta.png")
-        self.image = pygame.transform.scale(self.image,(100,100)) #Muda o tamanho da imagem
+        #self.image = pygame.transform.scale(self.image,(100,100)) #Muda o tamanho da imagem !!! ERRO DE COLISAO
         self.rect.x = startpos[0]
         self.rect.y = startpos[1]
         self.movex = 0.000
@@ -77,10 +77,13 @@ class Hand(pygame.sprite.Sprite):
 
             self.para_mao()
     def pega_ingrediente(self,ingrediente): #AJUSTAR FUNCAO
+        self.para_mao()
         x = self.rect.x
+        self.inix = x
         y = self.rect.y
+        self.iniy = y 
         self.image, self.rect = Image.load_image("MaoFechada.png")
-        self.image = pygame.transform.scale(self.image, (100, 100))
+       # self.image = pygame.transform.scale(self.image, (100, 100))
         self.rect.x = x
         self.rect.y = y
         self.control(float(self.calculo_velocidade(-20, 380,67)),float(-20))
@@ -88,16 +91,13 @@ class Hand(pygame.sprite.Sprite):
         self.pegou = True
 
     def solta_ingrediente(self):
-        x = self.rect.x
-        y = self.rect.y
         self.image, self.rect = Image.load_image("MaoAberta.png")
-        self.image = pygame.transform.scale(self.image, (100, 100))
+        #self.image = pygame.transform.scale(self.image, (100, 100))
         self.rect.x = self.inix
         self.rect.y = self.iniy
         self.para_mao()
         self.ingrediente.solta_ingrediente()
         self.ingrediente = None
-        print(x,y)
 
     def para_mao(self):
         self.movex = 0
