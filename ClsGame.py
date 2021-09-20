@@ -43,7 +43,6 @@ class Game():
         self.entrou = False
         self.segurando = False
 
-
         # Teste som
 
         #self.sound = pygame.mixer.Sound('./images/error.mp3')
@@ -56,7 +55,6 @@ class Game():
             pygame.display.update()
             self.reset_keys()
             self.in_game_loop()
-
 
     def check_events(self):
         for event in pygame.event.get():
@@ -73,16 +71,10 @@ class Game():
                 if event.key == pygame.K_UP:
                     self.UP_KEY = True
 
-    def colisao_ingrediente(self,objeto):
-        for i in (self.lista_ingredientes):
-            if self.Hand[0].rect.colliderect(i.rect):
-                objeto[0] = i
-                return True
-        return False
-
     def colisao_ingrediente(self,objeto,Hand):
         for i in (self.lista_ingredientes):
             if Hand.rect.colliderect(i.rect):
+                print(Hand.rect.colliderect(i.rect))
                 objeto[0] = i
                 return True
         return False
@@ -105,6 +97,7 @@ class Game():
                             #self.Hand.iniy = self.Hand.movey #!!!
                             self.Hand[0].pega_ingrediente(Objeto[0])
                             Objeto[0].pega_ingrediente()
+
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_SPACE:
                         if self.Hand[0].pegou:
@@ -157,7 +150,6 @@ class Game():
                                 self.Hand[1].solta_ingrediente()
                                 self.Hand[1].i = 0  # !!!
 
-
         if (Fase.jogo != "esteira") & (Fase.movimentacao_automatica == False)  & (Fase.segurar_ao_clicar == True):
             Objeto = [None]
             for event in pygame.event.get():
@@ -201,8 +193,10 @@ class Game():
         GPIO.setup(8, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(10, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(40, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+
         print(self.trava)
         print(self.delay)
+
         if (GPIO.input(40) == 1) & (self.delay > self.trava):
             self.Hand.move("LEFT", "DOWN", self.size)
             self.trava = self.delay
@@ -250,6 +244,7 @@ class Game():
             # i.move(2)
             i.update()
             self.screen.blit(i.image, i.rect)
+            
     def cria_igredientes(self,Fase):
         from ClsIngrediente import Ingrediente
         print(Fase.jogo)
@@ -261,11 +256,25 @@ class Game():
                 ingrediente = Ingrediente([self.DISPLAY_W/1.2,50], random.randint(1,8))
                 ingrediente.control(0,2)
                 self.lista_ingredientes.append(ingrediente)
+
         else:
+            lado = 0
+            direita = 40
+            esquerda = 40
             qtdingredientes = len(Fase.lista_ingredientes) +1
+
             if self.contador % 1000 == 0:
                 for ingrediente_pizza in Fase.lista_ingredientes:
-                    self.lista_ingredientes.append(Ingrediente([self.DISPLAY_W/qtdingredientes,self.DISPLAY_H/1.3],ingrediente_pizza[0]))
+                    print(len(Fase.lista_ingredientes))
+                    if lado == 0:
+                        self.lista_ingredientes.append(Ingrediente([(self.DISPLAY_W / 2) - esquerda ,self.DISPLAY_H/1.3],ingrediente_pizza[0]))
+                        esquerda += 80
+                        lado = 1
+                    else:
+                        self.lista_ingredientes.append(Ingrediente([(self.DISPLAY_W / 2) + direita ,self.DISPLAY_H/1.3],ingrediente_pizza[0]))
+                        direita += 80
+                        lado = 0
+
                     qtdingredientes -=1
 
         self.contador +=1
@@ -305,8 +314,8 @@ class Game():
     def in_game_loop(self):
         from ClsFase import Fase
         #ObjFase = Fase(2,"esteira")
-        #ObjFase = Fase(4,"")
-        ObjFase = Fase(2,"")
+        ObjFase = Fase(4,"")
+        #ObjFase = Fase(2,"")
 
         self.cria_objetos(ObjFase)
         contador =0
@@ -325,4 +334,6 @@ class Game():
             #self.Hand.update()
 
             self.desenha_tela()
+            for i in self.lista_ingredientes:
+                pygame.draw.rect(self.screen, pygame.Color("red"), i.rect)
             pygame.display.flip()
