@@ -14,10 +14,10 @@ class Ingrediente(pygame.sprite.Sprite):
     def __init__(self, startpos,image):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = Image.load_image(self.ingredientes[image][1] + ".png")
-        self.image = pygame.transform.scale(self.image,(50,50)) #Muda o tamanho da imagem
+        #self.image = pygame.transform.scale(self.image,(50,50)) #Muda o tamanho da imagem !!! ERRO DE COLISAO
         self.ingrediente = image
-        self.rect.centerx = startpos[0]
-        self.rect.centery = startpos[1]
+        self.rect.x = startpos[0]
+        self.rect.y = startpos[1]
         self.init_pos = startpos
         self.movex = 0
         self.movey = 0
