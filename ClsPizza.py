@@ -1,6 +1,7 @@
 import pygame
 from ClsImage import Image
 
+
 def get():
     tamanhoX = Pizza.get_rectx()
     return tamanhoX
@@ -22,3 +23,7 @@ class Pizza(pygame.sprite.Sprite):
         x = self.rect.x
         y = self.rect.y
         ingrediente.control(0,0)
+
+    def retorna_altura_imagem_pizza(self):
+        tamanho=self.image.get_size()
+        return tamanho[1]

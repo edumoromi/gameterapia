@@ -1,5 +1,4 @@
 from typing import Any
-
 import pygame
 from ClsMenu import *
 import sys
@@ -14,7 +13,7 @@ import random
 
 class Game():
     #Tamanho da tela do jogo.
-    DISPLAY_W, DISPLAY_H = 800, 600
+    DISPLAY_W, DISPLAY_H = 1280, 720
     clock = pygame.time.Clock()
     black = 255, 255, 255
     size = width, height = DISPLAY_W, DISPLAY_H
@@ -23,6 +22,13 @@ class Game():
     Pizza = ""
     Hand = []
     mov = "D" 
+    fonte = pygame.font.SysFont('Roboto', 25)
+    fonteScore = pygame.font.SysFont('Comic Sans MS', 20)
+    texto = ""
+    score = ""
+    frame = 30
+
+
     def __init__(self):
         pygame.init()
         self.running, self.playing = True, False
@@ -42,19 +48,20 @@ class Game():
         self.contador = 0
         self.entrou = False
         self.segurando = False
-
+        self.receita =""
+        self.erroIngrediente = 0
         # Teste som
 
         #self.sound = pygame.mixer.Sound('./images/error.mp3')
 
-    def game_loop(self):
+    def game_loop(self,jogo,fase):
         while self.playing:
             self.check_events()
             if self.START_KEY:
                 self.playing = False
             pygame.display.update()
             self.reset_keys()
-            self.in_game_loop()
+            self.in_game_loop(jogo,fase)
 
     def check_events(self):
         for event in pygame.event.get():
@@ -71,22 +78,72 @@ class Game():
                 if event.key == pygame.K_UP:
                     self.UP_KEY = True
 
+
     def colisao_ingrediente(self,objeto,Hand):
         for i in (self.lista_ingredientes):
             if Hand.rect.colliderect(i.rect):
-                print(Hand.rect.colliderect(i.rect))
                 objeto[0] = i
                 return True
         return False
 
+    def colisao_mao(self,objeto,Hand):
+        if Hand.rect.colliderect(objeto.rect):
+            return True
+        return False
+
+
+
     def checa_eventos_teclado(self,Fase):
-        if (Fase.jogo != "esteira") & (Fase.movimentacao_automatica == True)  & (Fase.segurar_ao_clicar == True):
+        if (Fase.jogo != "esteira") & (Fase.movimentacao_automatica == True)  & (Fase.segurar_ao_clicar == False): #FASE 1
             Objeto = [None]
             if self.Hand[0].pegou == False:
-                print("ENTROU")
-                if (self.Hand[0].rect.x <= 700) & (self.mov == "D"):
+                if (self.Hand[0].rect.x <= self.DISPLAY_W - self.Hand[0].retorna_largura_imagem_mao()) & (self.mov == "D"):
                     self.Hand[0].move("RIGHT", "DOWN", self.size)
-                elif (self.Hand[0].rect.x >= 700)  & (self.mov == "D"):
+                elif (self.Hand[0].rect.x >= self.DISPLAY_W - self.Hand[0].retorna_largura_imagem_mao())  & (self.mov == "D"):
+                    self.mov = "E"
+                    self.Hand[0].movex = 0
+                elif (self.Hand[0].rect.x >= 0) & (self.mov == "E"):
+                    self.Hand[0].move("LEFT", "DOWN", self.size)
+                    self.mov = "E"
+                elif self.Hand[0].rect.x <= 0 & (self.mov == "E"):
+                    self.mov = "D"
+                    self.Hand[0].movex = 0
+            if self.Hand[0].pegou:
+                if self.trava >= 18:
+                    if self.Pizza.rect.colliderect(self.Hand[0].rect):
+                        if self.Hand[0].ingrediente.ingrediente in Fase.listaPizza[0]:
+                            Fase.listaPizza[0].remove(self.Hand[0].ingrediente.ingrediente)
+                            self.Pizza.solta_ingrediente(self.Hand[0].ingrediente)
+                            self.Hand[0].solta_ingrediente(True, self.Pizza)
+                            self.trava = 0
+                        else:
+                            self.erroIngrediente +=1
+                            self.Hand[0].solta_ingrediente()
+                else:                   
+                    self.trava +=1
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        if self.colisao_ingrediente(Objeto,self.Hand[0]):
+                            #self.Hand.inix = self.Hand.movex #!!!
+                            #self.Hand.iniy = self.Hand.movey #!!!
+                            self.Hand[0].pega_ingrediente(Objeto[0],self.Pizza)
+                            Objeto[0].pega_ingrediente(self.Pizza)
+                        if self.colisao_mao(self.receita,self.Hand[0]):
+                            self.receita.abre_Receita()
+
+
+
+
+        if (Fase.jogo != "esteira") & (Fase.movimentacao_automatica == True)  & (Fase.segurar_ao_clicar == True): #FASE 2
+            Objeto = [None]
+            if self.Hand[0].pegou == False:
+                if (self.Hand[0].rect.x <= self.DISPLAY_W - self.Hand[0].retorna_largura_imagem_mao()) & (self.mov == "D"):
+                    self.Hand[0].move("RIGHT", "DOWN", self.size)
+                elif (self.Hand[0].rect.x >= self.DISPLAY_W - self.Hand[0].retorna_largura_imagem_mao())  & (self.mov == "D"):
                     self.mov = "E"
                     self.Hand[0].movex = 0
                 elif (self.Hand[0].rect.x >= 0) & (self.mov == "E"):
@@ -102,64 +159,30 @@ class Game():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         if self.colisao_ingrediente(Objeto,self.Hand[0]):
-                            #self.Hand.inix = self.Hand.movex #!!!
-                            #self.Hand.iniy = self.Hand.movey #!!!
-                            self.Hand[0].pega_ingrediente(Objeto[0])
-                            Objeto[0].pega_ingrediente()
+                            self.Hand[0].pega_ingrediente(Objeto[0],self.Pizza)
+                            Objeto[0].pega_ingrediente(self.Pizza)
+                        if self.colisao_mao(self.receita,self.Hand[0]):
+                            self.receita.abre_Receita()
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_SPACE:
                         if self.Hand[0].pegou:
                             self.Hand[0].pegou = False
                             if self.Pizza.rect.colliderect(self.Hand[0].rect) & self.colisao_ingrediente(Objeto,self.Hand[0]):
-                                self.Pizza.solta_ingrediente(self.Hand[0].ingrediente)
-                                self.Hand[0].solta_ingrediente()
-                                #self.Hand[0].ingrediente.solta_ingrediente()
-                                #self.Hand.i = 0  # !!!
+                                if self.Hand[0].ingrediente.ingrediente in Fase.listaPizza[0]:
+                                    Fase.listaPizza[0].remove(self.Hand[0].ingrediente.ingrediente)
+                                    self.Pizza.solta_ingrediente(self.Hand[0].ingrediente)
+                                    self.Hand[0].solta_ingrediente(True, self.Pizza)
+                                    self.trava = 0
+                                else:
+                                    self.erroIngrediente +=1
+                                    self.Hand[0].solta_ingrediente()
                             else:
                                 self.Hand[0].solta_ingrediente()
-                                self.Hand[0].i = 0  # !!!
+                                self.Hand[0].i = 0 
+                                self.erroIngrediente +=1
 
-        if (Fase.jogo == "esteira") & (Fase.movimentacao_automatica == True) & (Fase.segurar_ao_clicar == True):
-            Objeto = [None]
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit()
-                if event.type == pygame.KEYDOWN:
-                    if (event.key == pygame.K_LEFT) & (self.colisao_ingrediente(Objeto,self.Hand[0])):
-                        #self.Hand.inix = self.Hand.movex #!!!
-                        #self.Hand.iniy = self.Hand.movey #!!!
-                        self.Hand[0].pega_ingrediente(Objeto[0])
-                        Objeto[0].pega_ingrediente()
-                    if (event.key == pygame.K_RIGHT) & (self.colisao_ingrediente(Objeto,self.Hand[1])):
-                        self.Hand[1].pega_ingrediente(Objeto[0])
-                        Objeto[0].pega_ingrediente()
-
-                if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_LEFT:
-                        if self.Hand[0].pegou:
-                            self.Hand[0].pegou = False
-                            if self.Pizza.rect.colliderect(self.Hand[0].rect) & self.colisao_ingrediente(Objeto,self.Hand[0]):
-                                self.Pizza.solta_ingrediente(self.Hand[0].ingrediente)
-                                self.Hand[0].solta_ingrediente()
-                                #self.Hand[0].ingrediente.solta_ingrediente()
-                                #self.Hand.i = 0  # !!!
-                            else:
-                                self.Hand[0].solta_ingrediente()
-                                self.Hand[0].i = 0  # !!!
-                    if event.key == pygame.K_RIGHT:
-                        if self.Hand[1].pegou:
-                            self.Hand[1].pegou = False
-                            if self.Pizza.rect.colliderect(self.Hand[1].rect) & self.colisao_ingrediente(Objeto,self.Hand[0]):
-                                self.Pizza.solta_ingrediente(self.Hand[1].ingrediente)
-                                self.Hand[1].solta_ingrediente()
-                                #self.Hand[0].ingrediente.solta_ingrediente()
-                                #self.Hand.i = 0  # !!!
-                            else:
-                                self.Hand[1].solta_ingrediente()
-                                self.Hand[1].i = 0  # !!!
-
-        if (Fase.jogo != "esteira") & (Fase.movimentacao_automatica == False)  & (Fase.segurar_ao_clicar == True):
+        if (Fase.jogo != "esteira") & (Fase.movimentacao_automatica == False)  & (Fase.segurar_ao_clicar == True): #FASE 3
             Objeto = [None]
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -171,8 +194,10 @@ class Game():
                         self.Hand[0].move("RIGHT", "DOWN", self.size)
                     if event.key == pygame.K_SPACE:
                         if self.colisao_ingrediente(Objeto,self.Hand[0]):
-                            self.Hand[0].pega_ingrediente(Objeto[0])
-                            Objeto[0].pega_ingrediente()
+                            self.Hand[0].pega_ingrediente(Objeto[0],self.Pizza)
+                            Objeto[0].pega_ingrediente(self.Pizza)
+                        if self.colisao_mao(self.receita,self.Hand[0]):
+                            self.receita.abre_Receita()
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
                         self.Hand[0].move("LEFT", "UP", self.size)
@@ -182,14 +207,107 @@ class Game():
                         if self.Hand[0].pegou:
                             self.Hand[0].pegou = False
                             if self.Pizza.rect.colliderect(self.Hand[0].rect) & self.colisao_ingrediente(Objeto,self.Hand[0]):
-                                self.Pizza.solta_ingrediente(self.Hand[0].ingrediente)
+                                if self.Hand[0].ingrediente.ingrediente in Fase.listaPizza[0]:
+                                    Fase.listaPizza[0].remove(self.Hand[0].ingrediente.ingrediente)
+                                    self.Pizza.solta_ingrediente(self.Hand[0].ingrediente)
+                                    self.Hand[0].solta_ingrediente(True, self.Pizza)
+                                    self.trava = 0
+                                else:
+                                    self.erroIngrediente +=1
+                                    self.Hand[0].solta_ingrediente()
+
+                            else:
                                 self.Hand[0].solta_ingrediente()
+                                self.Hand[0].i = 0 
+                                self.erroIngrediente +=1
+
+        if (Fase.jogo == "esteira") & (Fase.movimentacao_automatica == True) & (Fase.segurar_ao_clicar == False): #FASE 1
+            Objeto = [None]
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if (event.key == pygame.K_LEFT) & (self.colisao_ingrediente(Objeto,self.Hand[0])):
+                        self.Hand[0].pega_ingrediente(Objeto[0],self.Pizza)
+                        Objeto[0].pega_ingrediente(self.Pizza)
+                    if self.colisao_mao(self.receita,self.Hand[0]):
+                        self.receita.abre_Receita()
+                    if (event.key == pygame.K_RIGHT) & (self.colisao_ingrediente(Objeto,self.Hand[1])):
+                        self.Hand[1].pega_ingrediente(Objeto[0],self.Pizza)
+                        Objeto[0].pega_ingrediente(self.Pizza)
+                    if self.colisao_mao(self.receita,self.Hand[1]):
+                        self.receita.abre_Receita()
+            if self.Hand[0].pegou:
+                if self.trava >= 20:
+                    if self.Pizza.rect.colliderect(self.Hand[0].rect) & self.colisao_ingrediente(Objeto,self.Hand[0]):
+                        self.Pizza.solta_ingrediente(self.Hand[0].ingrediente)
+                        self.Hand[0].solta_ingrediente_esteira(True,self.Pizza)
+                        #self.Hand[0].ingrediente.solta_ingrediente()
+                        #self.Hand.i = 0  # !!!
+                    else:
+                        self.Hand[0].solta_ingrediente()
+                        self.Hand[0].i = 0  # !!!
+                        self.erroIngrediente +=1
+                else:                   
+                    self.trava +=1
+
+            if self.Hand[1].pegou:
+                if self.trava >= 20:
+                    if self.Pizza.rect.colliderect(self.Hand[1].rect) & self.colisao_ingrediente(Objeto,self.Hand[0]):
+                                self.Pizza.solta_ingrediente(self.Hand[1].ingrediente)
+                                self.Hand[1].solta_ingrediente_esteira(True,self.Pizza)
+                                #self.Hand[0].ingrediente.solta_ingrediente()
+                                #self.Hand.i = 0  # !!!
+                    else:
+                        self.Hand[1].solta_ingrediente_esteira()
+                        self.Hand[1].i = 0  # !!!
+                        self.erroIngrediente +=1
+                else:                   
+                    self.trava +=1
+
+
+    
+        if (Fase.jogo == "esteira") & (Fase.movimentacao_automatica == True) & (Fase.segurar_ao_clicar == True): #FASE 2
+            Objeto = [None]
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if (event.key == pygame.K_LEFT) & (self.colisao_ingrediente(Objeto,self.Hand[0])):
+                        self.Hand[0].pega_ingrediente(Objeto[0],self.Pizza)
+                        Objeto[0].pega_ingrediente(self.Pizza)
+                    if self.colisao_mao(self.receita,self.Hand[0]):
+                        self.receita.abre_Receita()
+                    if (event.key == pygame.K_RIGHT) & (self.colisao_ingrediente(Objeto,self.Hand[1])):
+                        self.Hand[1].pega_ingrediente(Objeto[0],self.Pizza)
+                        Objeto[0].pega_ingrediente(self.Pizza)
+                    if self.colisao_mao(self.receita,self.Hand[1]):
+                        self.receita.abre_Receita()
+
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_LEFT:
+                        if self.Hand[0].pegou:
+                            self.Hand[0].pegou = False
+                            if self.Pizza.rect.colliderect(self.Hand[0].rect) & self.colisao_ingrediente(Objeto,self.Hand[0]):
+                                self.Pizza.solta_ingrediente(self.Hand[0].ingrediente)
+                                self.Hand[0].solta_ingrediente_esteira(True,self.Pizza)
                                 #self.Hand[0].ingrediente.solta_ingrediente()
                                 #self.Hand.i = 0  # !!!
                             else:
                                 self.Hand[0].solta_ingrediente()
                                 self.Hand[0].i = 0  # !!!
-    
+                    if event.key == pygame.K_RIGHT:
+                        if self.Hand[1].pegou:
+                            self.Hand[1].pegou = False
+                            if self.Pizza.rect.colliderect(self.Hand[1].rect) & self.colisao_ingrediente(Objeto,self.Hand[0]):
+                                self.Pizza.solta_ingrediente(self.Hand[1].ingrediente)
+                                self.Hand[1].solta_ingrediente_esteira(True,self.Pizza)
+                                #self.Hand[0].ingrediente.solta_ingrediente()
+                                #self.Hand.i = 0  # !!!
+                            else:
+                                self.Hand[1].solta_ingrediente_esteira()
+                                self.Hand[1].i = 0  # !!!
+                                self.erroIngrediente +=1
 
     def checa_eventos_push(self):
         Objeto = [None]
@@ -201,8 +319,6 @@ class Game():
         GPIO.setup(10, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(40, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-        print(self.trava)
-        print(self.delay)
 
         if (GPIO.input(40) == 1) & (self.delay > self.trava):
             self.Hand.move("LEFT", "DOWN", self.size)
@@ -217,7 +333,7 @@ class Game():
         if (GPIO.input(10) == 1) & (self.delay > self.trava):
             self.segurando = True
             if self.colisao_ingrediente(Objeto):
-                self.Hand.pega_ingrediente(Objeto)
+                self.Hand.pega_ingrediente(Objeto,self.Pizza)
                 self.Hand.pegou = True
                 self.Hand.ingrediente = Objeto[0]
 
@@ -247,6 +363,8 @@ class Game():
         self.display.blit(text_surface, text_rect)
 
     def update_ingredientes(self):
+        self.screen.blit(self.receita.image,self.receita.rect)
+        self.receita.update()
         for i in (self.lista_ingredientes):
             # i.move(2)
             i.update()
@@ -254,9 +372,24 @@ class Game():
             
     def cria_igredientes(self,Fase):
         from ClsIngrediente import Ingrediente
-        print(Fase.jogo)
+        from ClsReceita import Receita
         if Fase.jogo == "esteira":
-            if self.contador % 100 == 0:
+            if self.contador % 1000 == 0:
+                lado = random.randint(0,1)
+                if lado == 0:
+                    self.receita = Receita([155,50])
+                    ingrediente = Ingrediente([self.DISPLAY_W/1.2,50], random.randint(1,8))
+                    ingrediente.control(0,2)
+                    self.receita.control(0,2)
+                    self.lista_ingredientes.append(ingrediente)
+                else:
+                    self.receita = Receita([self.DISPLAY_W/1.2+5,50])
+                    ingrediente = Ingrediente([150,50], random.randint(1,8))
+                    ingrediente.control(0,2)
+                    self.receita.control(0,2)
+                    self.lista_ingredientes.append(ingrediente)
+
+            elif self.contador % 100 == 0:
                 ingrediente = Ingrediente([150,50], random.randint(1,8))
                 self.lista_ingredientes.append(ingrediente)
                 ingrediente.control(0,2)
@@ -266,72 +399,141 @@ class Game():
 
         else:
             lado = 0
-            direita = 40
-            esquerda = 40
+            direita = 50
+            esquerda = 50
             qtdingredientes = len(Fase.lista_ingredientes) +1
+            self.receita = Receita([self.DISPLAY_W /1.2  ,self.DISPLAY_H/1.4])
+            for ingrediente_pizza in Fase.lista_ingredientes:
+                if lado == 0:
+                    self.lista_ingredientes.append(Ingrediente([(self.DISPLAY_W / 2.5) - esquerda ,self.DISPLAY_H/1.4],ingrediente_pizza[0]))
+                    esquerda += 120
+                    lado = 1
+                else:
+                    self.lista_ingredientes.append(Ingrediente([(self.DISPLAY_W / 2.5) + direita ,self.DISPLAY_H/1.4],ingrediente_pizza[0]))
+                    direita += 120
+                    lado = 0
+            
+                qtdingredientes -=1
+        self.contador += 1
 
-            if self.contador % 1000 == 0:
-                for ingrediente_pizza in Fase.lista_ingredientes:
-                    print(len(Fase.lista_ingredientes))
-                    if lado == 0:
-                        self.lista_ingredientes.append(Ingrediente([(self.DISPLAY_W / 2) - esquerda ,self.DISPLAY_H/1.3],ingrediente_pizza[0]))
-                        esquerda += 80
-                        lado = 1
-                    else:
-                        self.lista_ingredientes.append(Ingrediente([(self.DISPLAY_W / 2) + direita ,self.DISPLAY_H/1.3],ingrediente_pizza[0]))
-                        direita += 80
-                        lado = 0
+   
 
-                    qtdingredientes -=1
-
-        self.contador +=1
-              
-
+    def calculo_velocidade_direcao_pizza(pizza, objeto):
+       Vx = (pizza.rect.centerx  - objeto.rect.x) * -30 / (pizza.rect.centery - objeto.rect.y - pizza.retorna_altura_imagem_pizza())
+       return Vx
 
     def cria_objetos(self,Fase):
-        from ClsPizza import Pizza
-        self.Pizza = Pizza([(self.DISPLAY_W / 1.9), (self.DISPLAY_W * 1/6)])
         #self.Hand = Hand([self.DISPLAY_H/10,self.DISPLAY_W/1.5])
         #self.Hand.pizzaCenter = self.Pizza.rect.center
         #self.cria_igredientes(Fase)
+        self.cria_pizza(Fase)
         self.cria_maos(Fase)
+
+    def cria_pizza(self,ObjFase):
+        from ClsPizza import Pizza
+        if ObjFase.jogo == "esteira":
+            self.Pizza = Pizza([(self.DISPLAY_W / 2), (300)])
+        else:
+            self.Pizza = Pizza([(self.DISPLAY_W / 2), (self.DISPLAY_W * 1/6)])
 
     def cria_maos(self,ObjFase):
        from ClsHand import Hand
        for localizacao in ObjFase.localizacao_mao:
             self.Hand.append(Hand([self.DISPLAY_W/localizacao[0],self.DISPLAY_H/localizacao[1]]))
+       if ObjFase.jogo == "esteira":
+            self.Hand[1].image = pygame.transform.flip(self.Hand[1].image, True, False)
+
 
     def atualiza_objetos(self,Fase):
         self.atualiza_maos(Fase)
+        if Fase.jogo == "esteira":
+            self.cria_igredientes(Fase)
 
 
     def atualiza_maos(self,Fase):
         for mao in self.Hand:
             mao.update()
 
+    def blit_text(self,surface, text, pos, font, color=pygame.Color('black')):
+        words = [word.split(' ') for word in text.splitlines()]  # 2D array where each row is a list of words.
+        space = font.size(' ')[0]  # The width of a space.
+        max_width, max_height = surface.get_size()
+        x, y = pos
+        for line in words:
+            for word in line:
+                word_surface = font.render(word, 0, color)
+                word_width, word_height = word_surface.get_size()
+                if x + word_width >= max_width:
+                    x = pos[0]  # Reset the x.
+                    y += word_height  # Start on new row.
+                surface.blit(word_surface, (x, y))
+                x += word_width + space
+            x = pos[0]  # Reset the x.
+            y += word_height  # Start on new row.
 
-    def desenha_tela(self):
-        self.screen.fill(self.black)
+    def desenha_tela(self, fase):
+        #self.screen.fill(self.black)
+        self.screen.blit(fase.fundo, (0, 0))
         self.screen.blit(self.Pizza.image, self.Pizza.rect)
         self.update_ingredientes()
+        if (self.receita.aberta == True) or (round(fase.timescore/self.frame) < 5):
+            self.desenha_receita(fase)
+        self.desenha_score(fase)
         for mao in self.Hand:
             self.screen.blit(mao.image, mao.rect)
+    
+    def desenha_receita(self, fase):
+        self.texto ="\nFase " + str(fase.dificuldade)
+        self.texto =  self.texto + "\n\n" + "Receita\n"
+        for ingredientes in fase.listaPizza[0]:
+            self.texto = self.texto + "\n" + ingredientes[1]
+        if fase.jogo == "esteira":
+            self.blit_text(self.screen, self.texto, (600, 500), self.fonte)    
+        else:
+            self.blit_text(self.screen, self.texto, (120, 40), self.fonte)    
+        self.texto = ""
 
+    def desenha_score(self,fase):
+        self.score ="Fase " + str(fase.dificuldade)
+        self.score = self.score +"\nTempo " + str(round(fase.timescore/self.frame))
+        self.score = self.score + "\n Erros:" + str(self.erroIngrediente)
+        if fase.jogo =="esteira":
+            self.blit_text(self.screen, self.score, (600, 30), self.fonteScore)
+        else:
+            self.blit_text(self.screen, self.score, (1050, 40), self.fonteScore)
+        self.score = ""
 
-    def in_game_loop(self):
+    def checa_fase(self,fase):
         from ClsFase import Fase
-        #ObjFase = Fase(2,"esteira")
-        ObjFase = Fase(4,"")
-        #ObjFase = Fase(2,"")
+        if len(fase.listaPizza[0]) == 0:
+            fase.listaPizza.pop(0)
+            self.lista_ingredientes = []
+            self.cria_igredientes(fase)
 
+        if len(fase.listaPizza) == 0:
+            #fase = Fase(fase.dificuldade+1,fase.jogo)
+            self.limpa_objetos()
+            self.in_game_loop(fase.jogo,fase.dificuldade+1)
+
+    def limpa_objetos(self):
+        self.lista_ingredientes = []
+        self.Hand = []
+        self.erroIngrediente = 0
+        self.receita.tempo = 0
+
+    def in_game_loop(self,jogo,fase):
+        from ClsFase import Fase
+        ObjFase = Fase(jogo,fase)
+        self.cria_igredientes(ObjFase)
         self.cria_objetos(ObjFase)
         contador =0
+
         #pygame.mixer.music.load("./images/background.mp3")
         #pygame.mixer.music.play()
 
         while 1: #!!! QUEBRAR QUANDO FASE ACABAR
-            self.clock.tick(30)
-            self.cria_igredientes(ObjFase)
+            self.clock.tick(self.frame)
+            ObjFase.timescore +=1
 
             self.checa_eventos_teclado(ObjFase)
             #self.checa_eventos_push()
@@ -339,8 +541,7 @@ class Game():
             # atualiza os objetos
             self.atualiza_objetos(ObjFase)
             #self.Hand.update()
-
-            self.desenha_tela()
-            for i in self.lista_ingredientes:
-                pygame.draw.rect(self.screen, pygame.Color("red"), i.rect)
+            self.desenha_tela(ObjFase)
+            self.checa_fase(ObjFase)
             pygame.display.flip()
+

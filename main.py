@@ -5,10 +5,10 @@ from ClsGame import Game
 g = Game()
 
 while g.running:
-    import os; print(os.getcwd()) # mostra o diretorio atual
+    import os; print(os.getcwd()) # mostra o diretorio atual    
     pygame.display.set_caption('Italian Chef')
     g.curr_menu.display_menu()
-    g.game_loop()
+    g.game_loop("esteira",2)
 
 
 # cria os nossos objetos (bola e Hand)
