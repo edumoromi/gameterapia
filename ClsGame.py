@@ -44,7 +44,11 @@ class Game():
         self.credits = CreditsMenu(self)
         self.curr_menu = self.main_menu
         self.delay =0
+        self.delay_e = 0
+        self.delay_d = 0
         self.trava = 0
+        self.trava_e = 0
+        self.trava_d = 0
         self.contador = 0
         self.entrou = False
         self.segurando = False
@@ -240,12 +244,17 @@ class Game():
             if self.Hand[0].pegou:
                 if self.trava >= 20:
                     if self.Pizza.rect.colliderect(self.Hand[0].rect) & self.colisao_ingrediente(Objeto,self.Hand[0]):
-                        self.Pizza.solta_ingrediente(self.Hand[0].ingrediente)
-                        self.Hand[0].solta_ingrediente_esteira(True,self.Pizza)
-                        #self.Hand[0].ingrediente.solta_ingrediente()
-                        #self.Hand.i = 0  # !!!
+                        if self.Hand[0].ingrediente.ingrediente in Fase.listaPizza[0]:
+                            Fase.listaPizza[0].remove(self.Hand[0].ingrediente.ingrediente)
+                            self.Pizza.solta_ingrediente(self.Hand[0].ingrediente)
+                            self.Hand[0].solta_ingrediente(True, self.Pizza)
+                            self.trava = 0
+                        else:
+                             self.Hand[0].solta_ingrediente_esteira()
+                             self.Hand[0].i = 0  # !!!
+                             self.erroIngrediente +=1
                     else:
-                        self.Hand[0].solta_ingrediente()
+                        self.Hand[0].solta_ingrediente_esteira()
                         self.Hand[0].i = 0  # !!!
                         self.erroIngrediente +=1
                 else:                   
@@ -254,10 +263,16 @@ class Game():
             if self.Hand[1].pegou:
                 if self.trava >= 20:
                     if self.Pizza.rect.colliderect(self.Hand[1].rect) & self.colisao_ingrediente(Objeto,self.Hand[0]):
-                                self.Pizza.solta_ingrediente(self.Hand[1].ingrediente)
-                                self.Hand[1].solta_ingrediente_esteira(True,self.Pizza)
-                                #self.Hand[0].ingrediente.solta_ingrediente()
-                                #self.Hand.i = 0  # !!!
+                        if self.Hand[1].ingrediente.ingrediente in Fase.listaPizza[0]:
+                            Fase.listaPizza[0].remove(self.Hand[1].ingrediente.ingrediente)
+                            self.Pizza.solta_ingrediente(self.Hand[1].ingrediente)
+                            self.Hand[1].solta_ingrediente_esteira(True, self.Pizza)
+                            self.trava = 0
+                        else:
+                             self.Hand[1].solta_ingrediente_esteira()
+                             self.Hand[1].i = 0  # !!!
+                             self.erroIngrediente +=1
+
                     else:
                         self.Hand[1].solta_ingrediente_esteira()
                         self.Hand[1].i = 0  # !!!
@@ -289,27 +304,40 @@ class Game():
                         if self.Hand[0].pegou:
                             self.Hand[0].pegou = False
                             if self.Pizza.rect.colliderect(self.Hand[0].rect) & self.colisao_ingrediente(Objeto,self.Hand[0]):
-                                self.Pizza.solta_ingrediente(self.Hand[0].ingrediente)
-                                self.Hand[0].solta_ingrediente_esteira(True,self.Pizza)
-                                #self.Hand[0].ingrediente.solta_ingrediente()
-                                #self.Hand.i = 0  # !!!
+                                if self.Hand[0].ingrediente.ingrediente in Fase.listaPizza[0]:
+                                    Fase.listaPizza[0].remove(self.Hand[0].ingrediente.ingrediente)
+                                    self.Pizza.solta_ingrediente(self.Hand[0].ingrediente)
+                                    self.Hand[0].solta_ingrediente_esteira(True, self.Pizza)
+                                    self.trava = 0
+                                else:
+                                     self.Hand[0].solta_ingrediente_esteira()
+                                     self.Hand[0].i = 0  # !!!
+                                     self.erroIngrediente +=1
                             else:
-                                self.Hand[0].solta_ingrediente()
+                                self.Hand[0].solta_ingrediente_esteira()
                                 self.Hand[0].i = 0  # !!!
+                                self.erroIngrediente +=1
+
                     if event.key == pygame.K_RIGHT:
                         if self.Hand[1].pegou:
                             self.Hand[1].pegou = False
                             if self.Pizza.rect.colliderect(self.Hand[1].rect) & self.colisao_ingrediente(Objeto,self.Hand[0]):
-                                self.Pizza.solta_ingrediente(self.Hand[1].ingrediente)
-                                self.Hand[1].solta_ingrediente_esteira(True,self.Pizza)
-                                #self.Hand[0].ingrediente.solta_ingrediente()
-                                #self.Hand.i = 0  # !!!
+                                if self.Hand[1].ingrediente.ingrediente in Fase.listaPizza[0]:
+                                    Fase.listaPizza[0].remove(self.Hand[1].ingrediente.ingrediente)
+                                    self.Pizza.solta_ingrediente(self.Hand[1].ingrediente)
+                                    self.Hand[1].solta_ingrediente_esteira(True, self.Pizza)
+                                    self.trava = 0
+                                else:
+                                     self.Hand[1].solta_ingrediente_esteira()
+                                     self.Hand[1].i = 0  # !!!
+                                     self.erroIngrediente +=1
+
                             else:
                                 self.Hand[1].solta_ingrediente_esteira()
                                 self.Hand[1].i = 0  # !!!
                                 self.erroIngrediente +=1
 
-    def checa_eventos_push(self):
+    def checa_eventos_push(self,Fase):
         Objeto = [None]
         self.delay += 1
         import RPi.GPIO as GPIO
@@ -320,36 +348,261 @@ class Game():
         GPIO.setup(40, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 
-        if (GPIO.input(40) == 1) & (self.delay > self.trava):
-            self.Hand.move("LEFT", "DOWN", self.size)
-            self.trava = self.delay
-            self.entrou = True
+       #if (GPIO.input(40) == 1) & (self.delay > self.trava):
+       #    self.Hand.move("LEFT", "DOWN", self.size)
+       #    self.trava = self.delay
+       #    self.entrou = True
+       #
+       #if (GPIO.input(8) == 1) & (self.delay > self.trava):
+       #    self.Hand.move("RIGHT", "DOWN", self.size)
+       #    self.trava = self.delay
+       #    self.entrou = True
 
-        if (GPIO.input(8) == 1) & (self.delay > self.trava):
-            self.Hand.move("RIGHT", "DOWN", self.size)
-            self.trava = self.delay
-            self.entrou = True
+       #if (GPIO.input(10) == 1) & (self.delay > self.trava):
+       #    self.segurando = True
+       #    if self.colisao_ingrediente(Objeto):
+       #        self.Hand.pega_ingrediente(Objeto,self.Pizza)
+       #        self.Hand.pegou = True
+       #        self.Hand.ingrediente = Objeto[0]
 
-        if (GPIO.input(10) == 1) & (self.delay > self.trava):
-            self.segurando = True
-            if self.colisao_ingrediente(Objeto):
-                self.Hand.pega_ingrediente(Objeto,self.Pizza)
-                self.Hand.pegou = True
-                self.Hand.ingrediente = Objeto[0]
+      # if self.Hand.pegou & (self.segurando == False):
+      #     self.Hand.pegou = False
+      #     if self.Pizza.rect.colliderect(self.Hand.rect):
+      #         self.Pizza.solta_ingrediente(self.Hand.ingrediente)
+      #         self.Hand.solta_ingrediente()
+      #
+      #     else:
+      #         self.Hand.solta_ingrediente()
+      #
+      # if (self.delay > self.trava) & (self.entrou == True) & (self.segurando == False):
+      #     self.Hand.para_mao()
+      #     self.entrou = False
+      # self.segurando = False
 
-        if self.Hand.pegou & (self.segurando == False):
-            self.Hand.pegou = False
-            if self.Pizza.rect.colliderect(self.Hand.rect):
-                self.Pizza.solta_ingrediente(self.Hand.ingrediente)
-                self.Hand.solta_ingrediente()
+        if (Fase.jogo != "esteira") & (Fase.movimentacao_automatica == True)  & (Fase.segurar_ao_clicar == False): #FASE 1
+            Objeto = [None]
+            if self.Hand[0].pegou == False:
+                if (self.Hand[0].rect.x <= self.DISPLAY_W - self.Hand[0].retorna_largura_imagem_mao()) & (self.mov == "D"):
+                    self.Hand[0].move("RIGHT", "DOWN", self.size)
+                elif (self.Hand[0].rect.x >= self.DISPLAY_W - self.Hand[0].retorna_largura_imagem_mao())  & (self.mov == "D"):
+                    self.mov = "E"
+                    self.Hand[0].movex = 0
+                elif (self.Hand[0].rect.x >= 0) & (self.mov == "E"):
+                    self.Hand[0].move("LEFT", "DOWN", self.size)
+                    self.mov = "E"
+                elif self.Hand[0].rect.x <= 0 & (self.mov == "E"):
+                    self.mov = "D"
+                    self.Hand[0].movex = 0
+            if self.Hand[0].pegou:
+                if self.trava >= 18:
+                    if self.Pizza.rect.colliderect(self.Hand[0].rect):
+                        if self.Hand[0].ingrediente.ingrediente in Fase.listaPizza[0]:
+                            Fase.listaPizza[0].remove(self.Hand[0].ingrediente.ingrediente)
+                            self.Pizza.solta_ingrediente(self.Hand[0].ingrediente)
+                            self.Hand[0].solta_ingrediente(True, self.Pizza)
+                            self.trava = 0
+                        else:
+                            self.erroIngrediente +=1
+                            self.Hand[0].solta_ingrediente()
+                else:                   
+                    self.trava +=1
 
+            if (GPIO.input(10) == 1) & (self.delay > self.trava):
+                self.segurando = True
+                if self.colisao_ingrediente(Objeto,self.Hand[0]):
+                    #self.Hand.inix = self.Hand.movex #!!!
+                    #self.Hand.iniy = self.Hand.movey #!!!
+                    self.Hand[0].pega_ingrediente(Objeto[0],self.Pizza)
+                    Objeto[0].pega_ingrediente(self.Pizza)
+                if self.colisao_mao(self.receita,self.Hand[0]):
+                    self.receita.abre_Receita()
+
+#--------------------------------------------------------
+        if (Fase.jogo != "esteira") & (Fase.movimentacao_automatica == True)  & (Fase.segurar_ao_clicar == True): #FASE 2
+            Objeto = [None]
+            if self.Hand[0].pegou == False:
+                if (self.Hand[0].rect.x <= self.DISPLAY_W - self.Hand[0].retorna_largura_imagem_mao()) & (self.mov == "D"):
+                    self.Hand[0].move("RIGHT", "DOWN", self.size)
+                elif (self.Hand[0].rect.x >= self.DISPLAY_W - self.Hand[0].retorna_largura_imagem_mao())  & (self.mov == "D"):
+                    self.mov = "E"
+                    self.Hand[0].movex = 0
+                elif (self.Hand[0].rect.x >= 0) & (self.mov == "E"):
+                    self.Hand[0].move("LEFT", "DOWN", self.size)
+                    self.mov = "E"
+                elif self.Hand[0].rect.x <= 0 & (self.mov == "E"):
+                    self.mov = "D"
+                    self.Hand[0].movex = 0
+
+            if (GPIO.input(10) == 1) & (self.delay > self.trava):
+                self.segurando = True
+                if self.colisao_ingrediente(Objeto,self.Hand[0]):
+                    self.Hand[0].pega_ingrediente(Objeto[0],self.Pizza)
+                    Objeto[0].pega_ingrediente(self.Pizza)
+                if self.colisao_mao(self.receita,self.Hand[0]):
+                    self.receita.abre_Receita()
+            if self.Hand[0].pegou & (self.segurando == False):                
+                self.Hand[0].pegou = False
+                if self.Pizza.rect.colliderect(self.Hand[0].rect) & self.colisao_ingrediente(Objeto,self.Hand[0]):
+                    if self.Hand[0].ingrediente.ingrediente in Fase.listaPizza[0]:
+                        Fase.listaPizza[0].remove(self.Hand[0].ingrediente.ingrediente)
+                        self.Pizza.solta_ingrediente(self.Hand[0].ingrediente)
+                        self.Hand[0].solta_ingrediente(True, self.Pizza)
+                        self.trava = 0
+                    else:
+                        self.erroIngrediente +=1
+                        self.Hand[0].solta_ingrediente()
+                else:
+                    self.Hand[0].solta_ingrediente()
+                    self.Hand[0].i = 0 
+                    self.erroIngrediente +=1
+#---------------------------------------------------------
+        if (Fase.jogo != "esteira") & (Fase.movimentacao_automatica == False)  & (Fase.segurar_ao_clicar == True): #FASE 3
+            Objeto = [None]
+            if (GPIO.input(40) == 1) & (self.delay > self.trava):
+                self.Hand[0].move("LEFT", "DOWN", self.size)
+                self.trava = self.delay
+                self.entrou = True
+
+            if (GPIO.input(8) == 1) & (self.delay > self.trava):
+                self.Hand[0].move("RIGHT", "DOWN", self.size)
+                self.trava = self.delay
+                self.entrou = True
+            if (GPIO.input(10) == 1) & (self.delay > self.trava):
+                self.segurando = True
+                if self.colisao_ingrediente(Objeto,self.Hand[0]):
+                    self.Hand[0].pega_ingrediente(Objeto[0],self.Pizza)
+                    Objeto[0].pega_ingrediente(self.Pizza)
+                if self.colisao_mao(self.receita,self.Hand[0]):
+                    self.receita.abre_Receita()
+
+            if self.Hand[0].pegou & (self.segurando == False):                
+                self.Hand[0].pegou = False
+                if self.Pizza.rect.colliderect(self.Hand[0].rect) & self.colisao_ingrediente(Objeto,self.Hand[0]):
+                    if self.Hand[0].ingrediente.ingrediente in Fase.listaPizza[0]:
+                        Fase.listaPizza[0].remove(self.Hand[0].ingrediente.ingrediente)
+                        self.Pizza.solta_ingrediente(self.Hand[0].ingrediente)
+                        self.Hand[0].solta_ingrediente(True, self.Pizza)
+                        self.trava = 0
+                    else:
+                        self.erroIngrediente +=1
+                        self.Hand[0].solta_ingrediente()
+                else:
+                    self.Hand[0].solta_ingrediente()
+                    self.Hand[0].i = 0 
+                    self.erroIngrediente +=1
+
+#-----------------------------------------------------------
+        if (Fase.jogo == "esteira") & (Fase.movimentacao_automatica == True) & (Fase.segurar_ao_clicar == False): #FASE 1
+            Objeto = [None]
+            if (GPIO.input(40) == 1) & (self.delay_e > self.trava_e) & (self.colisao_ingrediente(Objeto,self.Hand[0])):
+                self.Hand[0].pega_ingrediente(Objeto[0],self.Pizza)
+                Objeto[0].pega_ingrediente(self.Pizza)
+                self.trava_e = self.delay_e
+                self.entrou = True
+                if self.colisao_mao(self.receita,self.Hand[0]):
+                    self.receita.abre_Receita()   
+                   
+            if (GPIO.input(8) == 1) & (self.delay_d > self.trava_d) & (self.colisao_ingrediente(Objeto,self.Hand[1])):
+                self.trava_d = self.delay_d
+                self.entrou = True
+                self.Hand[1].pega_ingrediente(Objeto[0],self.Pizza)
+                Objeto[0].pega_ingrediente(self.Pizza)
+                if self.colisao_mao(self.receita,self.Hand[1]):
+                    self.receita.abre_Receita()
+
+
+            if self.Hand[0].pegou:
+                if self.trava >= 20:
+                    if self.Pizza.rect.colliderect(self.Hand[0].rect) & self.colisao_ingrediente(Objeto,self.Hand[0]):
+                        if self.Hand[0].ingrediente.ingrediente in Fase.listaPizza[0]:
+                            Fase.listaPizza[0].remove(self.Hand[0].ingrediente.ingrediente)
+                            self.Pizza.solta_ingrediente(self.Hand[0].ingrediente)
+                            self.Hand[0].solta_ingrediente(True, self.Pizza)
+                            self.trava = 0
+                        else:
+                             self.Hand[0].solta_ingrediente_esteira()
+                             self.Hand[0].i = 0  # !!!
+                             self.erroIngrediente +=1
+                    else:
+                        self.Hand[0].solta_ingrediente_esteira()
+                        self.Hand[0].i = 0  # !!!
+                        self.erroIngrediente +=1
+                else:                   
+                    self.trava +=1
+
+            if self.Hand[1].pegou:
+                if self.trava >= 20:
+                    if self.Pizza.rect.colliderect(self.Hand[1].rect) & self.colisao_ingrediente(Objeto,self.Hand[0]):
+                        if self.Hand[1].ingrediente.ingrediente in Fase.listaPizza[0]:
+                            Fase.listaPizza[0].remove(self.Hand[1].ingrediente.ingrediente)
+                            self.Pizza.solta_ingrediente(self.Hand[1].ingrediente)
+                            self.Hand[1].solta_ingrediente_esteira(True, self.Pizza)
+                            self.trava = 0
+                        else:
+                             self.Hand[1].solta_ingrediente_esteira()
+                             self.Hand[1].i = 0  # !!!
+                             self.erroIngrediente +=1
+
+                    else:
+                        self.Hand[1].solta_ingrediente_esteira()
+                        self.Hand[1].i = 0  # !!!
+                        self.erroIngrediente +=1
+                else:                   
+                    self.trava +=1
+#------------------------------------------------------------
+        if (Fase.jogo == "esteira") & (Fase.movimentacao_automatica == True) & (Fase.segurar_ao_clicar == True): #FASE 2
+            Objeto = [None]
+
+            if (GPIO.input(40) == 1) & (self.delay_e > self.trava_e) & (self.colisao_ingrediente(Objeto,self.Hand[0])):
+                self.Hand[0].pega_ingrediente(Objeto[0],self.Pizza)
+                Objeto[0].pega_ingrediente(self.Pizza)
+
+            if self.colisao_mao(self.receita,self.Hand[0]):
+               self.receita.abre_Receita()
+
+            if (GPIO.input(8) == 1) & (self.delay_d > self.trava_d) & (self.colisao_ingrediente(Objeto,self.Hand[1])):
+               self.Hand[1].pega_ingrediente(Objeto[0],self.Pizza)
+               Objeto[0].pega_ingrediente(self.Pizza)
+            if self.colisao_mao(self.receita,self.Hand[1]):
+               self.receita.abre_Receita()
+
+            if self.Hand[0].pegou & (self.segurando == False):
+                self.Hand[0].pegou = False
+                if self.Pizza.rect.colliderect(self.Hand[0].rect):
+                    if self.Hand[0].ingrediente.ingrediente in Fase.listaPizza[0]:
+                        Fase.listaPizza[0].remove(self.Hand[0].ingrediente.ingrediente)
+                        self.Pizza.solta_ingrediente(self.Hand[0].ingrediente)
+                        self.Hand[0].solta_ingrediente_esteira(True, self.Pizza)
+                        self.trava = 0
+                    else:
+                         self.Hand[0].solta_ingrediente_esteira()
+                         self.Hand[0].i = 0  # !!!
+                         self.erroIngrediente +=1
+                else:
+                    self.Hand[0].solta_ingrediente_esteira()
+                    self.Hand[0].i = 0  # !!!
+                    self.erroIngrediente +=1
+
+
+            if self.Hand.pegou[1] & (self.segurando == False):
+                self.Hand[1].pegou = False
+                if self.Hand[1].ingrediente.ingrediente in Fase.listaPizza[0]:
+                    Fase.listaPizza[0].remove(self.Hand[1].ingrediente.ingrediente)
+                    self.Pizza.solta_ingrediente(self.Hand[1].ingrediente)
+                    self.Hand[1].solta_ingrediente_esteira(True, self.Pizza)
+                    self.trava = 0
+                else:
+                    self.Hand[1].solta_ingrediente_esteira()
+                    self.Hand[1].i = 0  # !!!
+                    self.erroIngrediente +=1
             else:
-                self.Hand.solta_ingrediente()
+                self.Hand[1].solta_ingrediente_esteira()
+                self.Hand[1].i = 0  # !!!
+                self.erroIngrediente +=1
 
-        if (self.delay > self.trava) & (self.entrou == True) & (self.segurando == False):
-            self.Hand.para_mao()
-            self.entrou = False
-        self.segurando = False
+#------------------------------------------------------------
+
+
 
 
     def reset_keys(self):
@@ -536,7 +789,7 @@ class Game():
             ObjFase.timescore +=1
 
             self.checa_eventos_teclado(ObjFase)
-            #self.checa_eventos_push()
+            #self.checa_eventos_push(ObjFase)
 
             # atualiza os objetos
             self.atualiza_objetos(ObjFase)
