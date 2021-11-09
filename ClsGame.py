@@ -4,6 +4,7 @@ from ClsMenu import *
 import sys
 import time
 import random
+
 #import RPi.GPIO as GPIO
 #GPIO.setmode(GPIO.BOARD) #Define pinagem física (outra opção BCM)
 
@@ -27,7 +28,7 @@ class Game():
     texto = ""
     score = ""
     frame = 30
-
+    usuario = ""
 
     def __init__(self):
         pygame.init()
@@ -46,6 +47,7 @@ class Game():
         self.delay =0
         self.delay_e = 0
         self.delay_d = 0
+        self.trava_ing =0
         self.trava = 0
         self.trava_e = 0
         self.trava_d = 0
@@ -54,6 +56,7 @@ class Game():
         self.segurando = False
         self.receita =""
         self.erroIngrediente = 0
+        self.erroMovimento = 0
         # Teste som
 
         #self.sound = pygame.mixer.Sound('./images/error.mp3')
@@ -67,7 +70,7 @@ class Game():
             self.reset_keys()
             self.in_game_loop(jogo,fase)
 
-    def check_events(self):
+    def check_events(self, menu = None):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running, self.playing = False, False
@@ -81,7 +84,25 @@ class Game():
                     self.DOWN_KEY = True
                 if event.key == pygame.K_UP:
                     self.UP_KEY = True
-
+            if menu != None:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                # If the user clicked on the input_box rect.
+                    if menu.input_box.collidepoint(event.pos):
+                    # Toggle the active variable.
+                        menu.active = not menu.active
+                    else:
+                        menu.active = False
+                # Change the current color of the input box.
+                menu.color = menu.color_active if menu.active else menu.color_inactive
+                if event.type == pygame.KEYDOWN:
+                    if menu.active:
+                        if event.key == pygame.K_RETURN:
+                            print("APAGA")
+                            menu.text = ''
+                        elif event.key == pygame.K_BACKSPACE:
+                            menu.text = menu.text[:-1]
+                        else:
+                            menu.text += event.unicode
 
     def colisao_ingrediente(self,objeto,Hand):
         for i in (self.lista_ingredientes):
@@ -94,7 +115,6 @@ class Game():
         if Hand.rect.colliderect(objeto.rect):
             return True
         return False
-
 
 
     def checa_eventos_teclado(self,Fase):
@@ -394,7 +414,7 @@ class Game():
                     self.mov = "D"
                     self.Hand[0].movex = 0
             if self.Hand[0].pegou:
-                if self.trava >= 18:
+                if self.trava_ing >= 18:
                     if self.Pizza.rect.colliderect(self.Hand[0].rect):
                         if self.Hand[0].ingrediente.ingrediente in Fase.listaPizza[0]:
                             Fase.listaPizza[0].remove(self.Hand[0].ingrediente.ingrediente)
@@ -405,10 +425,14 @@ class Game():
                             self.erroIngrediente +=1
                             self.Hand[0].solta_ingrediente()
                 else:                   
-                    self.trava +=1
+                    self.trava_ing +=1
+
+
 
             if (GPIO.input(10) == 1) & (self.delay > self.trava):
+                print(self.delay, self.trava)
                 self.segurando = True
+                self.trava = self.delay
                 if self.colisao_ingrediente(Objeto,self.Hand[0]):
                     #self.Hand.inix = self.Hand.movex #!!!
                     #self.Hand.iniy = self.Hand.movey #!!!
@@ -454,8 +478,8 @@ class Game():
                 else:
                     self.Hand[0].solta_ingrediente()
                     self.Hand[0].i = 0 
-                    self.erroIngrediente +=1
-#---------------------------------------------------------
+                    self.erroMovimento +=1
+        #---------------------------------------------------------
         if (Fase.jogo != "esteira") & (Fase.movimentacao_automatica == False)  & (Fase.segurar_ao_clicar == True): #FASE 3
             Objeto = [None]
             if (GPIO.input(40) == 1) & (self.delay > self.trava):
@@ -489,7 +513,7 @@ class Game():
                 else:
                     self.Hand[0].solta_ingrediente()
                     self.Hand[0].i = 0 
-                    self.erroIngrediente +=1
+                    self.erroMovimento +=1
 
 #-----------------------------------------------------------
         if (Fase.jogo == "esteira") & (Fase.movimentacao_automatica == True) & (Fase.segurar_ao_clicar == False): #FASE 1
@@ -546,7 +570,7 @@ class Game():
                     else:
                         self.Hand[1].solta_ingrediente_esteira()
                         self.Hand[1].i = 0  # !!!
-                        self.erroIngrediente +=1
+                        self.erroMovimento +=1
                 else:                   
                     self.trava +=1
 #------------------------------------------------------------
@@ -581,10 +605,10 @@ class Game():
                 else:
                     self.Hand[0].solta_ingrediente_esteira()
                     self.Hand[0].i = 0  # !!!
-                    self.erroIngrediente +=1
+                    self.erroMovimento +=1
 
 
-            if self.Hand.pegou[1] & (self.segurando == False):
+            if self.Hand[1].pegou & (self.segurando == False):
                 self.Hand[1].pegou = False
                 if self.Hand[1].ingrediente.ingrediente in Fase.listaPizza[0]:
                     Fase.listaPizza[0].remove(self.Hand[1].ingrediente.ingrediente)
@@ -598,7 +622,7 @@ class Game():
             else:
                 self.Hand[1].solta_ingrediente_esteira()
                 self.Hand[1].i = 0  # !!!
-                self.erroIngrediente +=1
+                self.erroMovimento +=1
 
 #------------------------------------------------------------
 
@@ -754,10 +778,11 @@ class Game():
             self.blit_text(self.screen, self.score, (600, 30), self.fonteScore)
         else:
             self.blit_text(self.screen, self.score, (1050, 40), self.fonteScore)
-        self.score = ""
+
 
     def checa_fase(self,fase):
         from ClsFase import Fase
+        from ClsArquivo import Arquivo
         if len(fase.listaPizza[0]) == 0:
             fase.listaPizza.pop(0)
             self.lista_ingredientes = []
@@ -765,6 +790,7 @@ class Game():
 
         if len(fase.listaPizza) == 0:
             #fase = Fase(fase.dificuldade+1,fase.jogo)
+            Arquivo.gera_arquivo(self.usuario,fase.jogo,fase.dificuldade,self.erroIngrediente,self.erroMovimento,str(round(fase.timescore/self.frame)))
             self.limpa_objetos()
             self.in_game_loop(fase.jogo,fase.dificuldade+1)
 

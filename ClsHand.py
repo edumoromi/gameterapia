@@ -67,7 +67,7 @@ class Hand(pygame.sprite.Sprite):
                 if (self.movex != -2) & (self.movex != -4):
                     self.control(-4,0)
 
-        elif key == "UP":
+        elif (key == "UP") & (self.pegou == False):
             self.para_mao()
 
     def pega_ingrediente(self,ingrediente,pizza): #AJUSTAR FUNCAO

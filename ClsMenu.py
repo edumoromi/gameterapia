@@ -1,7 +1,9 @@
 import pygame
-
+import inspect
 #INSIDE OF THE GAME LOOP
-
+import os; print(os.getcwd()) # mostra o diretorio atual
+current_path = os.path.dirname(__file__) # Where your .py file is located
+image_path = os.path.join(current_path, 'images') # The image folder path
 
 #REST OF ITEMS ARE BLIT'D TO SCREEN.
 class Menu():
@@ -11,10 +13,10 @@ class Menu():
         self.run_display = True
         self.cursor_rect = pygame.Rect(0, 0, 20, 20)
         self.offset = - 100
-        self.jogar = pygame.image.load("images\jogarSelecionado.png")
-        self.options = pygame.image.load("images\options.png")
-        self.sair = pygame.image.load("images\sair.png")
-        self.Fundo = pygame.image.load("images\Fundo.jpg")
+        self.jogar = pygame.image.load(os.path.join(image_path, 'jogarSelecionado.png'))
+        self.options = pygame.image.load(os.path.join(image_path,'options.png'))
+        self.sair = pygame.image.load(os.path.join(image_path, 'sair.png'))
+        self.Fundo = pygame.image.load(os.path.join(image_path, 'Fundo.jpg'))
 
 
 
@@ -23,7 +25,13 @@ class Menu():
 
     def blit_screen(self):
         self.game.window.blit(self.game.display, (0, 0))
-        #pygame.draw.rect(self.screen, self.color, self.input_box, 2) !!! DESCOMENTAR
+        if isinstance(self,MainMenu):
+            pygame.draw.rect(self.screen, self.color, self.input_box, 2) 
+            txt_surface = self.font.render(self.text, True, self.color)
+            width = max(200, txt_surface.get_width()+10)
+            self.input_box.w = width
+            self.screen.blit(txt_surface, (self.input_box.x+5, self.input_box.y+5))
+
         pygame.display.update()
         self.game.reset_keys()
 
@@ -38,40 +46,20 @@ class MainMenu(Menu):
         self.input_box = pygame.Rect(200, 100, 140, 32)
         self.screen = pygame.display.set_mode((self.game.DISPLAY_W,  self.game.DISPLAY_H))
         #COLORS
+        self.font = pygame.font.Font(None, 32)
         self.color_inactive = pygame.Color('lightskyblue3')
         self.color_active = pygame.Color('dodgerblue2')
-        self.color = self.color_inactive
+        self.color = pygame.Color('black')
         self.active = False
         self.text = ''
         self.done = False
-
-    def check_events(self):
-            for event in pygame.event.get():
-             if event.type == pygame.MOUSEBUTTONDOWN:
-             # If the user clicked on the input_box rect.
-                 if self.input_box.collidepoint(event.pos):
-                 # Toggle the active variable.
-                     self.active = not self.active
-                 else:
-                     self.active = False
-             # Change the current color of the input box.
-             self.color = self.color_active if self.active else self.color_inactive
-             if event.type == pygame.KEYDOWN:
-                 if self.active:
-                     if event.key == pygame.K_RETURN:
-                         print(text)
-                         self.text = ''
-                     elif event.key == pygame.K_BACKSPACE:
-                         self.text = self.text[:-1]
-                     else:
-                         self.text += event.unicode
 
     def display_menu(self):
         self.run_display = True
         while self.run_display:
             self.game.display.blit(self.Fundo, (0, 0))
             #self.check_events()
-            self.game.check_events()
+            self.game.check_events(self)
             #self.game.draw_text('Main Menu', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
             self.game.display.blit(self.jogar, (self.startx, self.starty))
             self.game.display.blit(self.options, (self.optionsx, self.optionsy))
@@ -120,7 +108,9 @@ class MainMenu(Menu):
         self.move_cursor()
         if self.game.START_KEY:
             if self.state == 'Start':
+                self.game.usuario = self.text 
                 self.game.playing = True
+                
             elif self.state == 'Options':
                 self.game.curr_menu = self.game.options
             elif self.state == 'Credits':
@@ -178,3 +168,5 @@ class CreditsMenu(Menu):
             self.game.draw_text('Credits', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
             self.game.draw_text('Made by me', 15, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 10)
             self.blit_screen()
+
+
